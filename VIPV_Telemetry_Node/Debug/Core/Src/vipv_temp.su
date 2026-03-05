@@ -1,0 +1,2 @@
+../Core/Src/vipv_temp.c:24:6:VIPV_Temp_Init	40	static
+../Core/Src/vipv_temp.c:34:7:VIPV_Temp_Process	88	static
