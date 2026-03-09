@@ -140,7 +140,7 @@ int main(void)
 
   //_________________________________________________________________________________________________________________________
 
-  // VIPV_Temp_Init(&hi2c1);
+  VIPV_Temp_Init(&hi2c1);
   VIPV_Accel_Init(&hi2c1, &hlpuart1);
   VIPV_CAN_Init(&hfdcan1, &hlpuart1);
 
@@ -168,41 +168,24 @@ int main(void)
 
 
 
-	            //------------------------------------- PRUEBAS TEMPERATURA --------------------------------------------------
-	            /*
-	            if(sensor_actual == BUS_LIBRE){
+	            //------------------------------------- DISPARO INICIAL (TEMPERATURA) --------------------------------------------------
 
+	            if(sensor_actual == BUS_LIBRE){
 	                sensor_actual = LEYENDO_TEMP; //establecer estado de lectura de temperatura
 
 	                HAL_I2C_Mem_Read_IT(&hi2c1, 0x7E, 0x06, I2C_MEMADD_SIZE_8BIT, temp_buffer, 2); // Lectura continua STTS22H
 	      	  	  	//argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
 	            }
-				*/
 
-
-
-
-
-
-	            //------------------------------------- PRUEBAS ACELERÓMETRO -------------------------------------------------
-
-	            if(sensor_actual == BUS_LIBRE){
-
-	                sensor_actual = LEYENDO_INERCIA; //establecer estado de lectura del acelerómetro
-
-	                HAL_I2C_Mem_Read_IT(&hi2c1, 0x3A, 0x32, I2C_MEMADD_SIZE_8BIT, inercia_buffer, 6); // Lectura continua ADXL345
-	 	      	  	//argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
-	            }
-
-
-	        }
+	   }
 
 
 	  //----------------------------------------- GESTIÓN DE RESPUESTAS ------------------------------------------------
-/*
+
 	  if (flag_temp_ready == 1) {
 
 	        flag_temp_ready = 0; // reseteo flag
+
 
 	        // Extracción del float real cada vez que llega un valor de temperatura
 	        float temperatura_actual = VIPV_Temp_Process(temp_buffer, &hlpuart1);
@@ -211,26 +194,27 @@ int main(void)
 	        VIPV_CAN_Send_Entorno(&hfdcan1, &hlpuart1, temperatura_actual);
 
 
+	        // Una vez el BUS QUEDA LIBRE, pasar el relevo al acelerómetro
+	        sensor_actual = LEYENDO_INERCIA; //establecer estado de lectura del acelerómetro
 
-	        // Una vez el BUS QUEDA LIBRE, se lanza el acelerómetro
-	        //sensor_actual = LEYENDO_INERCIA;
-	        //HAL_I2C_Mem_Read_IT(&hi2c1, 0x3A, 0x32, I2C_MEMADD_SIZE_8BIT, inercia_buffer, 6);
-
-
+	        HAL_I2C_Mem_Read_IT(&hi2c1, 0x3A, 0x32, I2C_MEMADD_SIZE_8BIT, inercia_buffer, 6); // Lectura continua ADXL345
+	        //argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
 	  }
-*/
+
+
 
 	  if (flag_inercia_ready == 1) {
 
 	        flag_inercia_ready = 0; // reseteo flag
 
-	        // Variables para guardar lo que nos devuelva el sensor
+
+	        // Variables para guardar lo que devuelva el sensor
             float eje_x, eje_y, eje_z;
 
-            // Procesamos acelerómetro pasándole las direcciones de memoria (&)
+            // Procesar acelerómetro pasando las direcciones de memoria
 	        VIPV_Accel_Process(inercia_buffer, &hlpuart1, &eje_x, &eje_y, &eje_z);
 
-            // Inyectamos en el CAN con el ID 0x101
+            // Inyectar en el CAN con el ID 0x101
             VIPV_CAN_Send_Dinamica(&hfdcan1, &hlpuart1, eje_x, eje_y, eje_z);
 	  }
 
