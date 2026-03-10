@@ -21,6 +21,7 @@
 #include "vipv_accel.h"
 #include "vipv_temp.h"
 #include "vipv_can.h"
+#include "vipv_power.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -58,8 +59,11 @@ UART_HandleTypeDef hlpuart1;
 
 volatile uint8_t flag_temp_ready = 0;    // Flag temperatura
 volatile uint8_t flag_inercia_ready = 0; // Flag acelerómetro
+volatile uint8_t flag_power_ready = 0;   // Flag sensor potencia
+
 uint8_t temp_buffer[2];                  // Buffer para almacenamiento de datos I2C del sensor temperatura
 uint8_t inercia_buffer[6]; 				 // Buffer para almacenamiento datos I2C del acelerómetro (6 bytes (X, Y, Z))
+uint8_t power_buffer[10];                  // Buffer para almacenamiento de datos I2C del sensor potencia
 
 float temperatura_real = 0.0;
 uint32_t tiempo_anterior = 0;
@@ -69,7 +73,8 @@ uint32_t tiempo_anterior = 0;
 typedef enum {
     BUS_LIBRE,
     LEYENDO_TEMP,
-    LEYENDO_INERCIA
+    LEYENDO_INERCIA,
+	LEYENDO_POTENCIA
 } Estado_I2C;
 
 
@@ -142,6 +147,7 @@ int main(void)
 
   VIPV_Temp_Init(&hi2c1);
   VIPV_Accel_Init(&hi2c1, &hlpuart1);
+  VIPV_Power_Init(&hi2c1, &hlpuart1);
   VIPV_CAN_Init(&hfdcan1, &hlpuart1);
 
   //_________________________________________________________________________________________________________________________
@@ -165,6 +171,11 @@ int main(void)
 
 	            tiempo_anterior = HAL_GetTick(); //resetear
 
+
+	            	//DISPARO SENSOR POTENCIA
+
+	            	uint8_t cmd_refresh = 0x1F; // Comando REFRESH_V
+	            	HAL_I2C_Master_Transmit(&hi2c1, 0x20, &cmd_refresh, 1, 10);
 
 
 
@@ -194,6 +205,7 @@ int main(void)
 	        VIPV_CAN_Send_Entorno(&hfdcan1, &hlpuart1, temperatura_actual);
 
 
+
 	        // Una vez el BUS QUEDA LIBRE, pasar el relevo al acelerómetro
 	        sensor_actual = LEYENDO_INERCIA; //establecer estado de lectura del acelerómetro
 
@@ -216,6 +228,31 @@ int main(void)
 
             // Inyectar en el CAN con el ID 0x101
             VIPV_CAN_Send_Dinamica(&hfdcan1, &hlpuart1, eje_x, eje_y, eje_z);
+
+
+
+            // Una vez el BUS QUEDA LIBRE, pasar el relevo al sensor de potencia
+            sensor_actual = LEYENDO_POTENCIA; //establecer estado de lectura del sensor potencia
+
+            // Leer 10 bytes seguidos empezando en la dirección 0x07 (VBUS1)
+            HAL_I2C_Mem_Read_IT(&hi2c1, 0x20, 0x07, I2C_MEMADD_SIZE_8BIT, power_buffer, 10);
+            //argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
+	  }
+
+
+
+	  if (flag_power_ready == 1) {
+
+	  	      flag_power_ready = 0; // reseteo flag
+
+	  	      // Variables para guardar lo que devuelva el sensor
+	          float v_bus, i_sense, p_calc;
+
+	          // Procesar sensor potencia pasando las direcciones de memoria
+	  	      VIPV_Power_Process(power_buffer, &hlpuart1, &v_bus, &i_sense, &p_calc);
+
+
+	  	      // AÚN NO LO MANDAMOS POR CAN. ¡PRUEBA CON PUTTY PRIMERO!
 	  }
 
 
@@ -549,6 +586,10 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
     	else if (sensor_actual == LEYENDO_INERCIA) {  // El I2C ha terminado de descargar los datos en inercia_buffer
 
     	    flag_inercia_ready = 1; // Avisar al main
+    	}
+    	else if (sensor_actual == LEYENDO_POTENCIA) { // El I2C ha terminado de descargar los datos en power_buffer
+
+    	    flag_power_ready = 1; // Avisar al main
     	}
 
         // Liberar bus al terminar

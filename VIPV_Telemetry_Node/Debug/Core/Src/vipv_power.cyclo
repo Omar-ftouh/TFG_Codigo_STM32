@@ -1,0 +1,2 @@
+../Core/Src/vipv_power.c:20:6:VIPV_Power_Init	3
+../Core/Src/vipv_power.c:43:6:VIPV_Power_Process	1
