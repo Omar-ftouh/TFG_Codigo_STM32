@@ -243,16 +243,17 @@ int main(void)
 
 	  if (flag_power_ready == 1) {
 
-	  	      flag_power_ready = 0; // reseteo flag
-
-	  	      // Variables para guardar lo que devuelva el sensor
-	          float v_bus, i_sense, p_calc;
-
-	          // Procesar sensor potencia pasando las direcciones de memoria
-	  	      VIPV_Power_Process(power_buffer, &hlpuart1, &v_bus, &i_sense, &p_calc);
+	  	    flag_power_ready = 0; // reseteo flag
 
 
-	  	      // AÚN NO LO MANDAMOS POR CAN. ¡PRUEBA CON PUTTY PRIMERO!
+	  	    // Variables para guardar lo que devuelva el sensor
+	        float v_bus, i_sense, p_calc;
+
+	        // Procesar sensor potencia pasando las direcciones de memoria
+	  	    VIPV_Power_Process(power_buffer, &hlpuart1, &v_bus, &i_sense, &p_calc);
+
+	  	    // Inyectar en el CAN con el ID 0x102
+	  	    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, v_bus, i_sense, p_calc);
 	  }
 
 

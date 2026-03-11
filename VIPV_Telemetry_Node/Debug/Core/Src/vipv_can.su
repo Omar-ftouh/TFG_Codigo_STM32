@@ -1,3 +1,4 @@
 ../Core/Src/vipv_can.c:17:6:VIPV_CAN_Init	64	static
 ../Core/Src/vipv_can.c:85:6:VIPV_CAN_Send_Entorno	40	static
-../Core/Src/vipv_can.c:106:6:VIPV_CAN_Send_Dinamica	48	static
+../Core/Src/vipv_can.c:110:6:VIPV_CAN_Send_Dinamica	48	static
+../Core/Src/vipv_can.c:140:6:VIPV_CAN_Send_Potencia	48	static
