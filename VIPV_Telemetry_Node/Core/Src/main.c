@@ -60,21 +60,24 @@ UART_HandleTypeDef hlpuart1;
 volatile uint8_t flag_temp_ready = 0;    // Flag temperatura
 volatile uint8_t flag_inercia_ready = 0; // Flag acelerómetro
 volatile uint8_t flag_power_ready = 0;   // Flag sensor potencia
+volatile uint8_t flag_adc_ready = 0;     // Flag ADC
 
 uint8_t temp_buffer[2];                  // Buffer para almacenamiento de datos I2C del sensor temperatura
 uint8_t inercia_buffer[6]; 				 // Buffer para almacenamiento datos I2C del acelerómetro (6 bytes (X, Y, Z))
-uint8_t power_buffer[10];                  // Buffer para almacenamiento de datos I2C del sensor potencia
+uint8_t power_buffer[10];                // Buffer para almacenamiento de datos I2C del sensor potencia
 
 float temperatura_real = 0.0;
+volatile uint32_t adc_valor_bruto = 0;   // Para almacenar el dato de la interrupción ADC
 uint32_t tiempo_anterior = 0;
 
 
-//MÁQ. ESTADOS PARA MANEJO DEL CALLBACK DE LAS INTERRUPCIONES DEL I2C
+//MÁQ. ESTADOS PARA MANEJO DEL CALLBACK DE LAS INTERRUPCIONES
 typedef enum {
     BUS_LIBRE,
     LEYENDO_TEMP,
     LEYENDO_INERCIA,
-	LEYENDO_POTENCIA
+	LEYENDO_POTENCIA,
+	LEYENDO_IRRADIANCIA
 } Estado_I2C;
 
 
@@ -254,6 +257,35 @@ int main(void)
 
 	  	    // Inyectar en el CAN con el ID 0x102
 	  	    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, v_bus, i_sense, p_calc);
+
+
+
+            // Una vez el BUS QUEDA LIBRE, pasar el relevo al ADC para leer irradiancia
+            sensor_actual = LEYENDO_IRRADIANCIA; //establecer estado de lectura de irradiancia
+
+            HAL_ADC_Start_IT(&hadc1);
+	  }
+
+
+
+	  if (flag_adc_ready == 1) {
+
+		    flag_adc_ready = 0; // reseteo flag
+
+
+		    // Convertir a Voltios reales (El ADC de la placa tiene una resolución de 12 bits --> Arroja valores de 0 a 4095)
+		    float voltaje_adc = ((float)adc_valor_bruto / 4095.0f) * 3.3f; //Un valor del ADC de 4095 equivale a 3.3V
+
+		    // Aplicar la Constante de Calibración (arbitraria de momento)
+		    float constante_calibracion = 500.0f;
+		    float irradiancia = voltaje_adc * constante_calibracion;
+
+
+		    // Enviar por CAN los datos recibidos
+		    VIPV_CAN_Send_Irradiancia(&hfdcan1, &hlpuart1, irradiancia);
+
+		    // Apagar ADC hasta próxima lectura
+		    HAL_ADC_Stop_IT(&hadc1);
 	  }
 
 
@@ -595,6 +627,23 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 
         // Liberar bus al terminar
         sensor_actual = BUS_LIBRE;
+    }
+}
+
+
+//Callback para lectura de la irradiancia
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+
+    if (hadc->Instance == ADC1) {
+
+        if (sensor_actual == LEYENDO_IRRADIANCIA) {
+
+            adc_valor_bruto = HAL_ADC_GetValue(hadc);
+            flag_adc_ready = 1;
+
+            sensor_actual = BUS_LIBRE; // Liberar bus al terminar
+        }
+
     }
 }
 

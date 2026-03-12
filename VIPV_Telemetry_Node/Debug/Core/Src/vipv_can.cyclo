@@ -2,3 +2,4 @@
 ../Core/Src/vipv_can.c:85:6:VIPV_CAN_Send_Entorno	2
 ../Core/Src/vipv_can.c:110:6:VIPV_CAN_Send_Dinamica	2
 ../Core/Src/vipv_can.c:140:6:VIPV_CAN_Send_Potencia	2
+../Core/Src/vipv_can.c:176:6:VIPV_CAN_Send_Irradiancia	2

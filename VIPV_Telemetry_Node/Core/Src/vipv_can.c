@@ -170,3 +170,29 @@ void VIPV_CAN_Send_Potencia(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *hua
         contador_potencia++;
     }
 }
+
+
+
+void VIPV_CAN_Send_Irradiancia(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart, float irradiancia) {
+
+    static uint8_t contador_luz = 0;
+    uint8_t TxData[8] = {0};
+
+
+    // ESCALADO PARA EL ENVÍO (De float a int16, un decimal de precisión)
+    int16_t irr_int = (int16_t)(irradiancia * 10.0f);
+
+
+    // EMPAQUETADO
+    TxData[0] = (uint8_t)(irr_int >> 8);
+    TxData[1] = (uint8_t)(irr_int & 0xFF);
+    TxData[7] = contador_luz;
+
+
+    TxHeader.Identifier = 0x103; // ID PARA IRRADIANCIA
+
+
+    if (HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData) == HAL_OK) {
+        contador_luz++;
+    }
+}
