@@ -30,6 +30,26 @@ void VIPV_CAN_Init(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart) {
 	TxHeader.MessageMarker = 0;
 
 
+
+	// -------------------------------------------------------------------------
+	// CONFIGURACIÓN DEL FILTRO DE RECEPCIÓN (Para el OBD)
+	FDCAN_FilterTypeDef sFilterConfig;
+	sFilterConfig.IdType = FDCAN_STANDARD_ID;
+	sFilterConfig.FilterIndex = 0;
+	sFilterConfig.FilterType = FDCAN_FILTER_MASK;
+	sFilterConfig.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+	sFilterConfig.FilterID1 = 0x7E8; // ID correspondiente a respuesta de peticiones de diagnóstico a la ECU del coche (ISO 15765-4)
+	sFilterConfig.FilterID2 = 0x7FF; // Máscara de mensaje CAN (corresponde a 11 bits en hexadecimal, longitud exacta deseada)
+
+	if (HAL_FDCAN_ConfigFilter(hfdcan, &sFilterConfig) != HAL_OK) {
+		char err_filt[] = "X -> Error al configurar el Filtro CAN\r\n";
+		HAL_UART_Transmit(huart, (uint8_t*)err_filt, strlen(err_filt), 100);
+	}
+	// -------------------------------------------------------------------------
+
+
+
+
 	 // Arrancar periférico CAN
 	 if (HAL_FDCAN_Start(hfdcan) != HAL_OK) {
 
@@ -43,7 +63,8 @@ void VIPV_CAN_Init(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart) {
 	 }
 
 
-
+	 // Activar interrupción para cuando llegue un mensaje por OBD (la velocidad)
+	 HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);
 }
 
 
@@ -195,4 +216,17 @@ void VIPV_CAN_Send_Irradiancia(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *
     if (HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData) == HAL_OK) {
         contador_luz++;
     }
+}
+
+
+void VIPV_CAN_Pedir_Velocidad(FDCAN_HandleTypeDef *hfdcan) {
+
+    // Los 8 bytes del estándar OBD-II para pedir la velocidad (PID 0x0D)
+    uint8_t TxData_Req[8] = {0x02, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    // Cambiamos temporalmente el ID de la cabecera al de peticiones de diagnóstico
+    TxHeader.Identifier = 0x7DF;
+
+    // Lanzar la pregunta al bus CAN (y por tanto, al coche)
+    HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData_Req);
 }

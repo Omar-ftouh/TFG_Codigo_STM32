@@ -22,6 +22,8 @@
 #include "vipv_temp.h"
 #include "vipv_can.h"
 #include "vipv_power.h"
+#include <stdio.h>
+#include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -87,6 +89,7 @@ volatile Estado_I2C sensor_actual = BUS_LIBRE; //variable que guarda qué sensor
 FDCAN_TxHeaderTypeDef TxHeader; // Estructura de la cabecera del mensaje FDCAN
 uint8_t TxData[8]; // Array de 8 bytes para guardar los datos a transmitir
 
+volatile uint8_t velocidad_coche = 0; // Para guardar la velocidad real capturada por OBD (en km/h)
 
 //_________________________________________________________________________________________________________________________
 
@@ -153,6 +156,8 @@ int main(void)
   VIPV_Power_Init(&hi2c1, &hlpuart1);
   VIPV_CAN_Init(&hfdcan1, &hlpuart1);
 
+  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+
   //_________________________________________________________________________________________________________________________
 
   /* USER CODE END 2 */
@@ -175,15 +180,20 @@ int main(void)
 	            tiempo_anterior = HAL_GetTick(); //resetear
 
 
-	            	//DISPARO SENSOR POTENCIA
+	       // ARRANQUE DE SENSORES Y PETICIONES POR OBD (Nota: el acelerómetro se inicializa en vipv_accel.c)
 
-	            	uint8_t cmd_refresh = 0x1F; // Comando REFRESH_V
-	            	HAL_I2C_Master_Transmit(&hi2c1, 0x20, &cmd_refresh, 1, 10);
+	            // Disparo sensor potencia
+	            uint8_t cmd_refresh = 0x1F; // Comando REFRESH_V
+	            HAL_I2C_Master_Transmit(&hi2c1, 0x20, &cmd_refresh, 1, 10);
 
 
 
-	            //------------------------------------- DISPARO INICIAL (TEMPERATURA) --------------------------------------------------
+	            // Petición de velocidad al coche por OBD
+	            VIPV_CAN_Pedir_Velocidad(&hfdcan1); // (Manda la petición 0x7DF)
 
+
+
+	            // Disparo inicial sensor temperatura
 	            if(sensor_actual == BUS_LIBRE){
 	                sensor_actual = LEYENDO_TEMP; //establecer estado de lectura de temperatura
 
@@ -259,7 +269,6 @@ int main(void)
 	  	    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, v_bus, i_sense, p_calc);
 
 
-
             // Una vez el BUS QUEDA LIBRE, pasar el relevo al ADC para leer irradiancia
             sensor_actual = LEYENDO_IRRADIANCIA; //establecer estado de lectura de irradiancia
 
@@ -276,13 +285,14 @@ int main(void)
 		    // Convertir a Voltios reales (El ADC de la placa tiene una resolución de 12 bits --> Arroja valores de 0 a 4095)
 		    float voltaje_adc = ((float)adc_valor_bruto / 4095.0f) * 3.3f; //Un valor del ADC de 4095 equivale a 3.3V
 
-		    // Aplicar la Constante de Calibración (arbitraria de momento)
-		    float constante_calibracion = 500.0f;
+		    //Constante de Calibración (OBTENIDA EMPÍRICAMENTE EN LABORATORIO PARA UNA RESISTENCIA DE 10.7 ohm)
+		    float constante_calibracion = 934.58f;
 		    float irradiancia = voltaje_adc * constante_calibracion;
 
 
 		    // Enviar por CAN los datos recibidos
 		    VIPV_CAN_Send_Irradiancia(&hfdcan1, &hlpuart1, irradiancia);
+
 
 		    // Apagar ADC hasta próxima lectura
 		    HAL_ADC_Stop_IT(&hadc1);
@@ -647,6 +657,23 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
     }
 }
 
+
+// Callback para recepción de mensajes CAN (Respuestas del coche por OBD)
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
+    FDCAN_RxHeaderTypeDef RxHeader;
+    uint8_t RxData[8];
+
+    // Leer el mensaje entrante
+    if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &RxHeader, RxData) == HAL_OK) {
+
+        // Comprobar que es la ECU del motor (0x7E8) y que responde al PID de Velocidad (0x0D)
+        if (RxHeader.Identifier == 0x7E8 && RxData[2] == 0x0D) {
+
+            // Extraer el byte 3, que contiene la velocidad directamente en km/h
+            velocidad_coche = RxData[3];
+        }
+    }
+}
 
 //_________________________________________________________________________________________________________________________
 
