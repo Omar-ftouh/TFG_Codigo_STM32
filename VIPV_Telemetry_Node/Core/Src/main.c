@@ -188,8 +188,9 @@ int main(void)
 
 
 
-	            // Petición de velocidad al coche por OBD
-	            VIPV_CAN_Pedir_Velocidad(&hfdcan1); // (Manda la petición 0x7DF)
+	            // Petición de Velocidad y de RPMs al coche por CAN (puerto OBD-II)
+	            VIPV_CAN_Pedir_Velocidad(&hfdcan1); // (Petición de diagnóstico: 0x7DF)
+	            VIPV_CAN_Pedir_RPM(&hfdcan1); // (Petición de diagnóstico: 0x7DF)
 
 
 

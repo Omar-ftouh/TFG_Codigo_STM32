@@ -230,3 +230,16 @@ void VIPV_CAN_Pedir_Velocidad(FDCAN_HandleTypeDef *hfdcan) {
     // Lanzar la pregunta al bus CAN (y por tanto, al coche)
     HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData_Req);
 }
+
+
+void VIPV_CAN_Pedir_RPM(FDCAN_HandleTypeDef *hfdcan) {
+
+    // Los 8 bytes del estándar OBD-II para pedir las RPM (PID 0x0C)
+    uint8_t TxData_Req[8] = {0x02, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    // Cambiamos temporalmente el ID de la cabecera al de peticiones de diagnóstico
+    TxHeader.Identifier = 0x7DF;
+
+    // Lanzar la pregunta al bus CAN
+    HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData_Req);
+}

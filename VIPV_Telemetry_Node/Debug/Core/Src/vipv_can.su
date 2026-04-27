@@ -4,3 +4,4 @@
 ../Core/Src/vipv_can.c:161:6:VIPV_CAN_Send_Potencia	48	static
 ../Core/Src/vipv_can.c:197:6:VIPV_CAN_Send_Irradiancia	40	static
 ../Core/Src/vipv_can.c:222:6:VIPV_CAN_Pedir_Velocidad	24	static
+../Core/Src/vipv_can.c:235:6:VIPV_CAN_Pedir_RPM	24	static

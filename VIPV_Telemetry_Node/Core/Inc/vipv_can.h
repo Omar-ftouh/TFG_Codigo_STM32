@@ -20,6 +20,7 @@ void VIPV_CAN_Send_Dinamica(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *hua
 void VIPV_CAN_Send_Potencia(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart, float voltaje, float corriente, float potencia);
 void VIPV_CAN_Send_Irradiancia(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart, float irradiancia);
 void VIPV_CAN_Pedir_Velocidad(FDCAN_HandleTypeDef *hfdcan);
+void VIPV_CAN_Pedir_RPM(FDCAN_HandleTypeDef *hfdcan);
 
 
 #endif /* INC_VIPV_CAN_H_ */
