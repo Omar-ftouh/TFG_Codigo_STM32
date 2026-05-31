@@ -21,7 +21,8 @@
 #include "vipv_accel.h"
 #include "vipv_temp.h"
 #include "vipv_can.h"
-#include "vipv_power.h"
+//#include "vipv_power.h"
+#include "vipv_mppt.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -91,6 +92,33 @@ uint8_t TxData[8]; // Array de 8 bytes para guardar los datos a transmitir
 
 volatile uint8_t velocidad_coche = 0; // Para guardar la velocidad real capturada por OBD (en km/h)
 
+
+//----------------------- ALGORITMO MPPT -----------------------------
+
+// --- ARRAYS DE LAS CURVAS I-V --- (Promedio de todas las curvas muestreadas en excel)
+const float v_vector[50] = {0.548f, 1.097f, 1.645f, 2.194f, 2.742f, 3.291f, 3.839f, 4.388f, 4.936f, 5.485f, 6.033f, 6.582f,
+		7.13f, 7.679f, 8.228f, 8.776f, 9.324f, 9.873f, 10.422f, 10.97f, 11.519f, 12.067f, 12.615f, 13.164f, 13.712f, 14.261f,
+		14.809f, 15.358f, 15.907f, 16.455f, 17.004f, 17.552f, 18.101f, 18.649f, 19.198f, 19.746f, 20.295f, 20.844f, 21.392f,
+		21.941f, 22.489f, 23.037f, 23.587f, 24.134f, 24.683f, 25.231f, 25.78f, 26.329f, 26.877f };
+
+const float i_sol[50] = {0.96f, 0.95f, 0.94f, 0.93f, 0.92f, 0.91f, 0.9f, 0.89f, 0.88f, 0.87f, 0.86f, 0.85f, 0.84f, 0.83f,
+		0.83f, 0.82f, 0.81f, 0.8f, 0.8f, 0.79f, 0.78f, 0.77f, 0.76f, 0.76f, 0.75f, 0.74f, 0.73f, 0.72f, 0.72f, 0.71f, 0.7f,
+		0.69f, 0.68f, 0.68f, 0.67f, 0.66f, 0.65f, 0.64f, 0.63f, 0.63f, 0.61f, 0.6f, 0.58f, 0.56f, 0.54f, 0.51f, 0.45f, 0.34f,
+		0.15f, -0.14f };
+
+const float i_sombra[50] = {0.87f, 0.85f, 0.83f, 0.82f, 0.8f, 0.79f, 0.77f, 0.75f, 0.74f, 0.73f, 0.71f, 0.69f, 0.68f, 0.67f,
+		0.66f, 0.64f, 0.63f, 0.62f, 0.61f, 0.6f, 0.59f, 0.58f, 0.57f, 0.56f, 0.55f, 0.54f, 0.53f, 0.52f, 0.51f, 0.5f, 0.49f,
+		0.47f, 0.46f, 0.45f, 0.43f, 0.42f, 0.4f, 0.39f, 0.37f, 0.36f, 0.34f, 0.32f, 0.3f, 0.28f, 0.26f, 0.23f, 0.19f, 0.13f,
+		0.02f, -0.24f };
+
+
+// --- VARIABLES DE ESTADO MPPT ---
+float mppt_v_ant = 18.0f;
+float mppt_p_ant = 0.0f;
+float mppt_v_act = 19.0f;
+float mppt_paso = 0.1f; // Zancada del algoritmo
+
+
 //_________________________________________________________________________________________________________________________
 
 /* USER CODE END PV */
@@ -153,12 +181,45 @@ int main(void)
 
   VIPV_Temp_Init(&hi2c1);
   VIPV_Accel_Init(&hi2c1, &hlpuart1);
-  VIPV_Power_Init(&hi2c1, &hlpuart1);
+ // VIPV_Power_Init(&hi2c1, &hlpuart1);
   VIPV_CAN_Init(&hfdcan1, &hlpuart1);
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
+  // Inicialización del MPPT (asumiendo que arranca al sol)
+  mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 11);
+
   //_________________________________________________________________________________________________________________________
+
+
+  // --- CHIVATO: ESCÁNER I2C ---
+  char msg[64];
+  sprintf(msg, "\r\n=== INICIANDO DIAGNÓSTICO I2C ===\r\n");
+  HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
+
+  int dispositivos_encontrados = 0;
+
+  for(uint8_t i = 1; i < 128; i++) {
+      // Mandamos un ping a la dirección 'i' desplazada 1 bit a la izquierda
+      HAL_StatusTypeDef result = HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(i<<1), 2, 10);
+
+      if (result == HAL_OK) {
+          sprintf(msg, "-> EXITO: Sensor detectado en dir: 0x%02X\r\n", i);
+          HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
+          dispositivos_encontrados++;
+      }
+  }
+
+  if(dispositivos_encontrados == 0){
+      sprintf(msg, "-> ERROR CRÍTICO: El bus I2C está completamente MUERTO.\r\n");
+      HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
+  }
+  sprintf(msg, "=== FIN DEL DIAGNÓSTICO ===\r\n\r\n");
+  HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
+  // ----------------------------
+
+
+
 
   /* USER CODE END 2 */
 
@@ -183,8 +244,8 @@ int main(void)
 	       // ARRANQUE DE SENSORES Y PETICIONES POR OBD (Nota: el acelerómetro se inicializa en vipv_accel.c)
 
 	            // Disparo sensor potencia
-	            uint8_t cmd_refresh = 0x1F; // Comando REFRESH_V
-	            HAL_I2C_Master_Transmit(&hi2c1, 0x20, &cmd_refresh, 1, 10);
+	            //uint8_t cmd_refresh = 0x1F; // Comando REFRESH_V
+	            //HAL_I2C_Master_Transmit(&hi2c1, 0x20, &cmd_refresh, 1, 10);
 
 
 
@@ -244,17 +305,23 @@ int main(void)
             VIPV_CAN_Send_Dinamica(&hfdcan1, &hlpuart1, eje_x, eje_y, eje_z);
 
 
-
+            /*
             // Una vez el BUS QUEDA LIBRE, pasar el relevo al sensor de potencia
             sensor_actual = LEYENDO_POTENCIA; //establecer estado de lectura del sensor potencia
 
             // Leer 10 bytes seguidos empezando en la dirección 0x07 (VBUS1)
             HAL_I2C_Mem_Read_IT(&hi2c1, 0x20, 0x07, I2C_MEMADD_SIZE_8BIT, power_buffer, 10);
             //argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
+            */
+
+            // Una vez el BUS QUEDA LIBRE, pasar el relevo al ADC para leer irradiancia
+            sensor_actual = LEYENDO_IRRADIANCIA; //establecer estado de lectura de irradiancia
+
+            HAL_ADC_Start_IT(&hadc1);
 	  }
 
 
-
+	  /*
 	  if (flag_power_ready == 1) {
 
 	  	    flag_power_ready = 0; // reseteo flag
@@ -275,13 +342,14 @@ int main(void)
 
             HAL_ADC_Start_IT(&hadc1);
 	  }
-
-
+ 	 */
 
 	  if (flag_adc_ready == 1) {
 
 		    flag_adc_ready = 0; // reseteo flag
 
+
+		    // 1. LECTURA DE LA IRRADIANCIA REAL
 
 		    // Convertir a Voltios reales (El ADC de la placa tiene una resolución de 12 bits --> Arroja valores de 0 a 4095)
 		    float voltaje_adc = ((float)adc_valor_bruto / 4095.0f) * 3.3f; //Un valor del ADC de 4095 equivale a 3.3V
@@ -290,9 +358,37 @@ int main(void)
 		    float constante_calibracion = 934.58f;
 		    float irradiancia = voltaje_adc * constante_calibracion;
 
-
 		    // Enviar por CAN los datos recibidos
 		    VIPV_CAN_Send_Irradiancia(&hfdcan1, &hlpuart1, irradiancia);
+
+
+
+		    // 2. EJECUCIÓN DEL ALGORITMO MPPT
+
+		    const float *i_vector_actual;
+
+		    if (irradiancia > 150.0f) { // Se elige 150W/m^2 como el umbral de Sol/sombra
+		        i_vector_actual = i_sol;
+		    }
+		    else {
+		        i_vector_actual = i_sombra;
+		    }
+
+
+		    for (int j = 0; j < 10; j++) { // Convergencia acelerada: 10 pasos
+
+		    	float mppt_p_act = obtener_potencia_panel(mppt_v_act, v_vector, i_vector_actual, 11);
+		    	float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
+
+		        // Actualizar datos para la siguiente iteración del for
+		        mppt_v_ant = mppt_v_act;
+		        mppt_p_ant = mppt_p_act;
+		        mppt_v_act = mppt_v_sig;
+		    }
+
+		    // Empaquetar el resultado en CAN. Se envían: Voltaje actual, 0.0 en corriente (recalcular) y Potencia resultante
+		    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, mppt_v_act, 0.0f, mppt_p_ant);
+
 
 
 		    // Apagar ADC hasta próxima lectura
@@ -631,10 +727,12 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
 
     	    flag_inercia_ready = 1; // Avisar al main
     	}
+    	/*
     	else if (sensor_actual == LEYENDO_POTENCIA) { // El I2C ha terminado de descargar los datos en power_buffer
 
     	    flag_power_ready = 1; // Avisar al main
     	}
+    	*/
 
         // Liberar bus al terminar
         sensor_actual = BUS_LIBRE;

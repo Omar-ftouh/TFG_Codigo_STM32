@@ -33,7 +33,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart.h \
  ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal_uart_ex.h \
  ../Core/Inc/vipv_accel.h ../Core/Inc/main.h ../Core/Inc/vipv_temp.h \
- ../Core/Inc/vipv_can.h ../Core/Inc/vipv_power.h
+ ../Core/Inc/vipv_can.h
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
 ../Core/Inc/stm32g4xx_hal_conf.h:
@@ -72,4 +72,3 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/main.h:
 ../Core/Inc/vipv_temp.h:
 ../Core/Inc/vipv_can.h:
-../Core/Inc/vipv_power.h:
