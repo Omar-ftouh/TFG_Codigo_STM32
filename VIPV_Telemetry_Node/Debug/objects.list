@@ -6,6 +6,7 @@
 "./Core/Src/system_stm32g4xx.o"
 "./Core/Src/vipv_accel.o"
 "./Core/Src/vipv_can.o"
+"./Core/Src/vipv_mppt.o"
 "./Core/Src/vipv_power.o"
 "./Core/Src/vipv_temp.o"
 "./Core/Startup/startup_stm32g431rbtx.o"

@@ -96,7 +96,7 @@ volatile uint8_t velocidad_coche = 0; // Para guardar la velocidad real capturad
 //----------------------- ALGORITMO MPPT -----------------------------
 
 // --- ARRAYS DE LAS CURVAS I-V --- (Promedio de todas las curvas muestreadas en excel)
-const float v_vector[50] = {0.548f, 1.097f, 1.645f, 2.194f, 2.742f, 3.291f, 3.839f, 4.388f, 4.936f, 5.485f, 6.033f, 6.582f,
+const float v_vector[50] = {0.0f, 0.548f, 1.097f, 1.645f, 2.194f, 2.742f, 3.291f, 3.839f, 4.388f, 4.936f, 5.485f, 6.033f, 6.582f,
 		7.13f, 7.679f, 8.228f, 8.776f, 9.324f, 9.873f, 10.422f, 10.97f, 11.519f, 12.067f, 12.615f, 13.164f, 13.712f, 14.261f,
 		14.809f, 15.358f, 15.907f, 16.455f, 17.004f, 17.552f, 18.101f, 18.649f, 19.198f, 19.746f, 20.295f, 20.844f, 21.392f,
 		21.941f, 22.489f, 23.037f, 23.587f, 24.134f, 24.683f, 25.231f, 25.78f, 26.329f, 26.877f };
@@ -116,7 +116,7 @@ const float i_sombra[50] = {0.87f, 0.85f, 0.83f, 0.82f, 0.8f, 0.79f, 0.77f, 0.75
 float mppt_v_ant = 18.0f;
 float mppt_p_ant = 0.0f;
 float mppt_v_act = 19.0f;
-float mppt_paso = 0.1f; // Zancada del algoritmo
+float mppt_paso = 0.1f; // Paso del algoritmo
 
 
 //_________________________________________________________________________________________________________________________
@@ -187,12 +187,13 @@ int main(void)
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
   // Inicialización del MPPT (asumiendo que arranca al sol)
-  mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 11);
+  mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 50);
 
   //_________________________________________________________________________________________________________________________
 
 
-  // --- CHIVATO: ESCÁNER I2C ---
+  // --- PUTTY: ESCÁNER I2C PARA DETECCIÓN DE ERRORES ---
+  /*
   char msg[64];
   sprintf(msg, "\r\n=== INICIANDO DIAGNÓSTICO I2C ===\r\n");
   HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
@@ -200,7 +201,7 @@ int main(void)
   int dispositivos_encontrados = 0;
 
   for(uint8_t i = 1; i < 128; i++) {
-      // Mandamos un ping a la dirección 'i' desplazada 1 bit a la izquierda
+      // Mandar ping a la dirección 'i' desplazada 1 bit a la izquierda
       HAL_StatusTypeDef result = HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(i<<1), 2, 10);
 
       if (result == HAL_OK) {
@@ -211,13 +212,12 @@ int main(void)
   }
 
   if(dispositivos_encontrados == 0){
-      sprintf(msg, "-> ERROR CRÍTICO: El bus I2C está completamente MUERTO.\r\n");
+      sprintf(msg, "-> ERROR CRÍTICO: El bus I2C NO RESPONDE\r\n");
       HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
   }
   sprintf(msg, "=== FIN DEL DIAGNÓSTICO ===\r\n\r\n");
   HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
-  // ----------------------------
-
+  */
 
 
 
@@ -349,7 +349,7 @@ int main(void)
 		    flag_adc_ready = 0; // reseteo flag
 
 
-		    // 1. LECTURA DE LA IRRADIANCIA REAL
+		    // 1. LECTURA DE LA IRRADIANCIA
 
 		    // Convertir a Voltios reales (El ADC de la placa tiene una resolución de 12 bits --> Arroja valores de 0 a 4095)
 		    float voltaje_adc = ((float)adc_valor_bruto / 4095.0f) * 3.3f; //Un valor del ADC de 4095 equivale a 3.3V
@@ -377,7 +377,7 @@ int main(void)
 
 		    for (int j = 0; j < 10; j++) { // Convergencia acelerada: 10 pasos
 
-		    	float mppt_p_act = obtener_potencia_panel(mppt_v_act, v_vector, i_vector_actual, 11);
+		    	float mppt_p_act = obtener_potencia_panel(mppt_v_act, v_vector, i_vector_actual, 50);
 		    	float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
 
 		        // Actualizar datos para la siguiente iteración del for
@@ -386,7 +386,7 @@ int main(void)
 		        mppt_v_act = mppt_v_sig;
 		    }
 
-		    // Empaquetar el resultado en CAN. Se envían: Voltaje actual, 0.0 en corriente (recalcular) y Potencia resultante
+		    // Empaquetar el resultado en CAN. Se envían: Voltaje actual, 0.0 en Corriente y Potencia resultante
 		    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, mppt_v_act, 0.0f, mppt_p_ant);
 
 
