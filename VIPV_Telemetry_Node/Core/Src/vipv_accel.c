@@ -52,9 +52,15 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
 	int16_t z_raw = (int16_t)((inercia_buffer[5] << 8) | inercia_buffer[4]);
 
 	// Por defecto, el ADXL345 tiene una resolución de 3.9 mg/LSB
-	float x_g = x_raw * 0.0039f;
-	float y_g = y_raw * 0.0039f;
-	float z_g = z_raw * 0.0039f;
+	float x_fisico = x_raw * 0.0039f;
+	float y_fisico = y_raw * 0.0039f;
+	float z_fisico = z_raw * 0.0039f;
+
+	// El sensor físicamente está dispuesto dentro de la caja con una inclinación de 90º sobre el eje Z
+	// Haciendo una rotación de 90º sobre el eje Z:
+	float x_g = z_fisico;              // El antiguo eje Z ahora es el X (Variará con la aceleración / frenada del coche)
+	float y_g = y_fisico + 0.04f;      // Corrección del error de -0.04g que existe en reposo sobre el eje Y
+	float z_g = x_fisico;              // El antiguo eje X ahora es el Z (Gravedad ~0.98g)
 
 	// Devolver los valores de los 3 ejes de vuelta al main
 	*out_x = x_g;

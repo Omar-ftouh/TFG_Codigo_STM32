@@ -193,7 +193,7 @@ int main(void)
 
 
   // --- PUTTY: ESCÁNER I2C PARA DETECCIÓN DE ERRORES ---
-  /*
+
   char msg[64];
   sprintf(msg, "\r\n=== INICIANDO DIAGNÓSTICO I2C ===\r\n");
   HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
@@ -217,7 +217,7 @@ int main(void)
   }
   sprintf(msg, "=== FIN DEL DIAGNÓSTICO ===\r\n\r\n");
   HAL_UART_Transmit(&hlpuart1, (uint8_t*)msg, strlen(msg), 100);
-  */
+
 
 
 
