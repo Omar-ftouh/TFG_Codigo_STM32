@@ -220,7 +220,6 @@ int main(void)
 
 
 
-
   /* USER CODE END 2 */
 
 
@@ -375,7 +374,7 @@ int main(void)
 		    }
 
 
-		    for (int j = 0; j < 10; j++) { // Convergencia acelerada: 10 pasos
+		    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
 
 		    	float mppt_p_act = obtener_potencia_panel(mppt_v_act, v_vector, i_vector_actual, 50);
 		    	float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);

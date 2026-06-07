@@ -1625,7 +1625,7 @@ int main(void)
 
 		    const float *i_vector_actual;
 
-		    if (irradiancia > 150.0f) { // Se elige 150W/m^2 como el umbral de Sol/sombra
+		    if (irradiancia > 100.0f) { // Se elige 150W/m^2 como el umbral de Sol/sombra
  800119c:	edd7 7a16 	vldr	s15, [r7, #88]	@ 0x58
  80011a0:	ed9f 7a1e 	vldr	s14, [pc, #120]	@ 800121c <main+0x2f8>
  80011a4:	eef4 7ac7 	vcmpe.f32	s15, s14
@@ -1643,7 +1643,7 @@ int main(void)
 		    }
 
 
-		    for (int j = 0; j < 10; j++) { // Convergencia acelerada: 10 pasos
+		    for (int j = 0; j < 1; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
  80011b8:	2300      	movs	r3, #0
  80011ba:	66bb      	str	r3, [r7, #104]	@ 0x68
  80011bc:	e065      	b.n	800128a <main+0x366>
@@ -1671,7 +1671,7 @@ int main(void)
  8001210:	457ff000 	.word	0x457ff000
  8001214:	40533333 	.word	0x40533333
  8001218:	4469a51f 	.word	0x4469a51f
- 800121c:	43160000 	.word	0x43160000
+ 800121c:	42c80000 	.word	0x42c80000
  8001220:	0800d03c 	.word	0x0800d03c
 
 		    	float mppt_p_act = obtener_potencia_panel(mppt_v_act, v_vector, i_vector_actual, 50);
@@ -1714,12 +1714,12 @@ int main(void)
  800127e:	4a0e      	ldr	r2, [pc, #56]	@ (80012b8 <main+0x394>)
  8001280:	6d3b      	ldr	r3, [r7, #80]	@ 0x50
  8001282:	6013      	str	r3, [r2, #0]
-		    for (int j = 0; j < 10; j++) { // Convergencia acelerada: 10 pasos
+		    for (int j = 0; j < 1; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
  8001284:	6ebb      	ldr	r3, [r7, #104]	@ 0x68
  8001286:	3301      	adds	r3, #1
  8001288:	66bb      	str	r3, [r7, #104]	@ 0x68
  800128a:	6ebb      	ldr	r3, [r7, #104]	@ 0x68
- 800128c:	2b09      	cmp	r3, #9
+ 800128c:	2b00      	cmp	r3, #0
  800128e:	ddc9      	ble.n	8001224 <main+0x300>
 		    }
 
@@ -4179,7 +4179,7 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
  8001fda:	edc7 7a31 	vstr	s15, [r7, #196]	@ 0xc4
 
 	// El sensor físicamente está dispuesto dentro de la caja con una inclinación de 90º sobre el eje Z
-	// Haciendo una rotación de 90º sobre el eje Z:
+	// Haciendo una rotación de 90º sobre el eje X:
 	float x_g = z_fisico;              // El antiguo eje Z ahora es el X (Variará con la aceleración / frenada del coche)
  8001fde:	f8d7 30c4 	ldr.w	r3, [r7, #196]	@ 0xc4
  8001fe2:	f8c7 30c0 	str.w	r3, [r7, #192]	@ 0xc0
