@@ -1,2 +1,4 @@
-../Core/Src/vipv_mppt.c:13:7:obtener_potencia_panel	48	static
-../Core/Src/vipv_mppt.c:51:7:mppt_po	48	static
+../Core/Src/vipv_mppt.c:15:7:obtener_potencia_directa	40	static
+../Core/Src/vipv_mppt.c:87:7:mppt_po	48	static
+../Core/Src/vipv_mppt.c:115:7:obtener_potencia_dinamica	32	static
+../Core/Src/vipv_mppt.c:142:7:ejecutar_mppt_adaptativo	40	static

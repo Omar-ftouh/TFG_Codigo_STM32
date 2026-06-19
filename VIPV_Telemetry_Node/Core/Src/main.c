@@ -112,6 +112,14 @@ const float i_sombra[50] = {0.87f, 0.85f, 0.83f, 0.82f, 0.8f, 0.79f, 0.77f, 0.75
 		0.02f, -0.24f };
 
 
+//Arrays de potencia precalculada
+float p_sol[50];
+float p_sombra[50];
+
+//Umbrales de irradiancia calibrados
+const float IRR_MAX = 1000.0f;
+const float IRR_MIN = 10.0f;
+
 // --- VARIABLES DE ESTADO MPPT ---
 float mppt_v_ant = 18.0f;
 float mppt_p_ant = 0.0f;
@@ -119,7 +127,7 @@ float mppt_v_act = 19.0f;
 float mppt_paso = 0.1f; // Paso del algoritmo
 
 
-//_________________________________________________________________________________________________________________________
+//______________________________________________________________________________________________mppt_v_act___________________________
 
 /* USER CODE END PV */
 
@@ -187,7 +195,14 @@ int main(void)
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
   // Inicialización del MPPT (asumiendo que arranca al sol)
-  mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 50);
+  //mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 50);
+
+
+   // --- PRECALCULAR ARRAYS DE POTENCIA ---
+   for(int i = 0; i < 50; i++) {
+       p_sol[i] = v_vector[i] * i_sol[i];
+       p_sombra[i] = v_vector[i] * i_sombra[i];
+   }
 
   //_________________________________________________________________________________________________________________________
 
@@ -362,8 +377,8 @@ int main(void)
 
 
 
-		    // 2. EJECUCIÓN DEL ALGORITMO MPPT
-
+		    // 2. EJECUCIÓN DEL ALGORITMO MPPT ADAPTATIVO
+		    /*
 		    const float *i_vector_actual;
 
 		    if (irradiancia > 150.0f) { // Se elige 150W/m^2 como el umbral de Sol/sombra
@@ -372,23 +387,52 @@ int main(void)
 		    else {
 		        i_vector_actual = i_sombra;
 		    }
+		    */
 
+		    /*
+		    float *p_array_actual; // Puntero al array de potencia que toque
 
-		    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
-
-		    	float mppt_p_act = obtener_potencia_panel(mppt_v_act, v_vector, i_vector_actual, 50);
-		    	float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
-
-		        // Actualizar datos para la siguiente iteración del for
-		        mppt_v_ant = mppt_v_act;
-		        mppt_p_ant = mppt_p_act;
-		        mppt_v_act = mppt_v_sig;
+		    if (irradiancia > 150.0f) { // Se elige 150W/m^2 como el umbral de Sol/sombra
+		        p_array_actual = p_sol;
+		    } else {
+		        p_array_actual = p_sombra;
 		    }
+		    */
+
+		    // Potencia base para este milisegundo
+		    float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
+
+		    // FILTRO ADAPTATIVO
+		    float mppt_v_sig = ejecutar_mppt_adaptativo(mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
+
+
+		    if (mppt_v_sig == 19.5f) { // ESTADO: CONGELADO
+		    // Clavamos las variables en el punto de seguridad para no perder el norte.
+		    	mppt_v_act = 19.5f;
+		        mppt_v_ant = 19.5f;
+		        mppt_p_ant = obtener_potencia_dinamica(19.5f, irradiancia);
+		    }
+		    else {  // ESTADO: FUNCIONAMIENTO NORMAL
+
+
+			    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
+
+			    	//float mppt_p_act = obtener_potencia_directa(mppt_v_act, v_vector, p_array_actual, 50);
+			    	//float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
+
+			    	float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
+			    	float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
+
+			        // Actualizar datos para la siguiente iteración del for
+			        mppt_v_ant = mppt_v_act;
+			        mppt_p_ant = mppt_p_act;
+			        mppt_v_act = mppt_v_sig;
+			    }
+		    }
+
 
 		    // Empaquetar el resultado en CAN. Se envían: Voltaje actual, 0.0 en Corriente y Potencia resultante
 		    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, mppt_v_act, 0.0f, mppt_p_ant);
-
-
 
 		    // Apagar ADC hasta próxima lectura
 		    HAL_ADC_Stop_IT(&hadc1);
