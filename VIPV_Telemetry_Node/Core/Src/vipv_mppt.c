@@ -139,10 +139,9 @@ static float irr_anterior = 0.0f;
 static int contador_cambios = 0;
 static int timer_congelacion = 0;
 
-float ejecutar_mppt_adaptativo(float v_actual, float irr_actual, float v_anterior, float p_anterior, float paso_v, float p_actual) {
 
-	float v_siguiente;
-
+MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_anterior, float p_anterior, float paso_v, float p_actual) {
+/*
     // Derivada de la irradiancia con respecto a la iteración anterior
     float delta_irr = irr_actual - irr_anterior;
 
@@ -164,24 +163,67 @@ float ejecutar_mppt_adaptativo(float v_actual, float irr_actual, float v_anterio
     // Evaluar si se dispara la condición de congelación
     if (contador_cambios >= LIMITE_CAMBIOS && timer_congelacion == 0) {
         timer_congelacion = TIEMPO_CONGELACION;
-        contador_cambios = 0; // Reiniciamos contador para el siguiente ciclo
+        contador_cambios = 0; // Reinicio del contador para el siguiente ciclo
     }
 
+    irr_anterior = irr_actual;
 
-    // MÁQUINA DE ESTADOS DEL MPPT ADAPTATIVO
+
+    // ---- MÁQUINA DE ESTADOS DEL MPPT ADAPTATIVO ----
     if (timer_congelacion > 0) {
 
         // 1) ESTADO: CONGELADO
-        v_siguiente = VOLTAJE_PUNTO_FIJO;
+    	*v_actual = VOLTAJE_PUNTO_FIJO;
         timer_congelacion--; // Decrementar el temporizador (1 segundo por vuelta del ciclo principal)
     }
     else {
         // 2) ESTADO: NORMAL
-        v_siguiente = mppt_po(v_actual, p_actual, v_anterior, p_anterior, paso_v);  // Se ejecuta el P&O
     }
 
-    // Se guarda la irradiancia actual para el segundo siguiente
-    irr_anterior = irr_actual;
+    return MPPT_MODO_NORMAL;
+    */
 
-    return v_siguiente;
+	// STATE 1: EL SISTEMA ESTÁ CONGELADO
+	    if (timer_congelacion > 0) {
+	        *v_actual = VOLTAJE_PUNTO_FIJO; // Forzamos los 19.5V seguros
+	        timer_congelacion--;
+
+	        // ¡EL BLINDAJE!: Forzamos el contador a cero continuamente para asegurar
+	        // que al salir de la congelación empecemos con el historial limpio.
+	        contador_cambios = 0;
+	        irr_anterior = irr_actual;
+
+	        return MPPT_MODO_CONGELADO;
+	    }
+
+	    // STATE 2: MODO NORMAL (Evaluación activa de transitorios lumínicos)
+	    float delta_irr = irr_actual - irr_anterior;
+	    irr_anterior = irr_actual;
+
+	    if (fabsf(delta_irr) >= UMBRAL_BRUSCO) {
+	        contador_cambios++;
+	    } else {
+	        // Amortiguación gradual si el cielo se estabiliza
+	        if (contador_cambios > 0) {
+	            static int ciclo_decae = 0;
+	            if (++ciclo_decae >= 3) {
+	                contador_cambios--;
+	                ciclo_decae = 0;
+	            }
+	        }
+	    }
+
+	    // STATE 3: DETECCIÓN DE INESTABILIDAD (Disparo de congelación)
+	    if (contador_cambios >= LIMITE_CAMBIOS) {
+	        timer_congelacion = TIEMPO_CONGELACION;
+	        contador_cambios = 0; // Limpiamos el historial de inmediato
+
+	        *v_actual = VOLTAJE_PUNTO_FIJO;
+	        timer_congelacion--;  // Consumimos el primer segundo de este ciclo
+
+	        return MPPT_MODO_CONGELADO;
+	    }
+
+	    // Si everything está tranquilo, operamos en modo clásico
+	    return MPPT_MODO_NORMAL;
 }

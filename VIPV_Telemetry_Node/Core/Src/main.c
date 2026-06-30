@@ -268,6 +268,24 @@ int main(void)
 	            VIPV_CAN_Pedir_RPM(&hfdcan1); // (Petición de diagnóstico: 0x7DF)
 
 
+	            // ====================================================================
+	            // SISTEMA DE PROTECCIÓN: WATCHDOG DE LA MÁQUINA DE ESTADOS
+	            // ====================================================================
+	                        if (sensor_actual != BUS_LIBRE) {
+	                            // Si llegamos a un nuevo segundo y el bus sigue ocupado, ¡se ha colgado un callback!
+
+	                            // 1. Reseteo del periférico de hardware I2C por fuerza bruta
+	                            HAL_I2C_DeInit(&hi2c1);
+	                            HAL_I2C_Init(&hi2c1);
+
+	                            // 2. Limpieza de las banderas huérfanas
+	                            flag_temp_ready = 0;
+	                            flag_inercia_ready = 0;
+
+	                            // 3. Rescatamos el cerebro de la placa
+	                            sensor_actual = BUS_LIBRE;
+	                        }
+	            // ====================================================================
 
 	            // Disparo inicial sensor temperatura
 	            if(sensor_actual == BUS_LIBRE){
@@ -399,31 +417,36 @@ int main(void)
 		    }
 		    */
 
-		    // Potencia base para este milisegundo
+		    // Cálculo potencia instante actual
 		    float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
 
-		    // FILTRO ADAPTATIVO
-		    float mppt_v_sig = ejecutar_mppt_adaptativo(mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
+		    // Filtro adaptativo
+		    //float mppt_v_sig = ejecutar_mppt_adaptativo(mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
+		    MPPT_Modo_t modo_mppt = ejecutar_mppt_adaptativo(&mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
 
 
-		    if (mppt_v_sig == 19.5f) { // ESTADO: CONGELADO
-		    // Clavamos las variables en el punto de seguridad para no perder el norte.
-		    	mppt_v_act = 19.5f;
-		        mppt_v_ant = 19.5f;
-		        mppt_p_ant = obtener_potencia_dinamica(19.5f, irradiancia);
+		    if (modo_mppt == MPPT_MODO_CONGELADO) { // ESTADO: CONGELADO
+		    	// ESTADO CONGELADO: mppt_v_act queda fijado a 19.5V
+
+		    	// Actualizar datos para la siguiente iteración
+		    	mppt_v_ant = mppt_v_act;
+		    	mppt_p_ant = mppt_p_act;
+
+		        //mppt_p_ant = obtener_potencia_dinamica(19.5f, irradiancia);
 		    }
-		    else {  // ESTADO: FUNCIONAMIENTO NORMAL
-
+		    else {
+		    	// ESTADO NORMAL
 
 			    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
 
 			    	//float mppt_p_act = obtener_potencia_directa(mppt_v_act, v_vector, p_array_actual, 50);
 			    	//float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
 
-			    	float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
+			    	//float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
+			    	mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
 			    	float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
 
-			        // Actualizar datos para la siguiente iteración del for
+			        // Actualizar datos para la siguiente iteración
 			        mppt_v_ant = mppt_v_act;
 			        mppt_p_ant = mppt_p_act;
 			        mppt_v_act = mppt_v_sig;
