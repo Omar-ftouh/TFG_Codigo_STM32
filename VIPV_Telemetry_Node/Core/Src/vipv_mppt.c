@@ -111,7 +111,7 @@ float mppt_po(float v_actual, float p_actual, float v_anterior, float p_anterior
 }
 
 
-
+/*
 float obtener_potencia_dinamica(float v_actual, float irr_actual) {
 
     // Acotación de la irradiancia para evitar fallos de cálculo en la interpolación
@@ -132,16 +132,93 @@ float obtener_potencia_dinamica(float v_actual, float irr_actual) {
 
     return p_final_real;
 }
+*/
+
+float obtener_potencia_dinamica(float v_bus, float irradiancia) {
+    float p_escalada = 0.0f;
+
+    // Umbral para decidir si tratamos con módulo iluminado o sombreado: 150W/m2
+    if (irradiancia > 150.0f) {
+        // Obtener la potencia de la curva base para el voltaje actual
+        float p_base = obtener_potencia_directa(v_bus, v_vector, p_sol, 50);
+
+        // REGLA DE 3: Se aplicar ratio de irradiancias
+        float ratio = irradiancia / irr_eq_sol;
+        p_escalada = p_base * ratio;
+
+    } else {
+    	// Obtener la potencia de la curva base para el voltaje actual
+        float p_base = obtener_potencia_directa(v_bus, v_vector, p_sombra, 50);
+
+        // REGLA DE 3: Se aplicar ratio de irradiancias
+        float ratio = irradiancia / irr_eq_sombra;
+        p_escalada = p_base * ratio;
+    }
+
+    return p_escalada;
+}
 
 
 // Variables estáticas para que conserven su valor entre llamadas del bucle
 static float irr_anterior = 0.0f;
 static int contador_cambios = 0;
 static int timer_congelacion = 0;
+static float voltaje_congelado = 23.0f; //valor inicial
 
 
 MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_anterior, float p_anterior, float paso_v, float p_actual) {
+
+	// STATE 1: EL SISTEMA YA ESTÁ CONGELADO
+	    if (timer_congelacion > 0) {
+	        *v_actual = voltaje_congelado; // Forzar el voltaje guardado dinámicamente antes de entrar en zona de alto dinamismo
+	        timer_congelacion--;
+
+	        // Se guarda el historial
+	        contador_cambios = 0;
+	        irr_anterior = irr_actual;
+
+	        return MPPT_MODO_CONGELADO;
+	    }
+
+	    // STATE 2: MODO NORMAL (Evaluación activa de transitorios de irradiancia)
+	    float delta_irr = irr_actual - irr_anterior;
+	    irr_anterior = irr_actual;
+
+	    if (fabsf(delta_irr) >= UMBRAL_BRUSCO) {
+	        contador_cambios++;
+	    } else {
+	        // Amortiguación gradual si el cielo se estabiliza
+	        if (contador_cambios > 0) {
+	            static int ciclo_decae = 0;
+	            if (++ciclo_decae >= 3) {
+	                contador_cambios--;
+	                ciclo_decae = 0;
+	            }
+	        }
+	    }
+
+	    // STATE 3: DETECCIÓN DE INESTABILIDAD (Disparo de congelación)
+	    if (contador_cambios >= LIMITE_CAMBIOS) {
+	        timer_congelacion = TIEMPO_CONGELACION;
+	        contador_cambios = 0; // Se borra el historial
+
+	        // Capturar el voltaje de operación actual
+	        voltaje_congelado = *v_actual;
+
+	        *v_actual = voltaje_congelado;
+	        timer_congelacion--;  // Se consume el primer segundo de este ciclo
+
+	        return MPPT_MODO_CONGELADO;
+	    }
+
+	    // Modo por defecto
+	    return MPPT_MODO_NORMAL;
+}
+
+
 /*
+MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_anterior, float p_anterior, float paso_v, float p_actual) {
+
     // Derivada de la irradiancia con respecto a la iteración anterior
     float delta_irr = irr_actual - irr_anterior;
 
@@ -181,7 +258,8 @@ MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_
     }
 
     return MPPT_MODO_NORMAL;
-    */
+ */
+/*
 
 	// STATE 1: EL SISTEMA ESTÁ CONGELADO
 	    if (timer_congelacion > 0) {
@@ -227,3 +305,4 @@ MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_
 	    // Si everything está tranquilo, operamos en modo clásico
 	    return MPPT_MODO_NORMAL;
 }
+*/

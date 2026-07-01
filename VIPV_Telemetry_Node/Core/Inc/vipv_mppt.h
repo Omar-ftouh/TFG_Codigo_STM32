@@ -29,19 +29,21 @@ float obtener_potencia_dinamica(float v_actual, float irr_actual);
 MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_anterior, float p_anterior, float paso_v, float p_actual);
 
 
-// DECLARACIONES EXTERNAS CORRECTAS
+// DECLARACIONES EXTERNAS
 extern const float v_vector[50];
 extern float p_sol[50];
 extern float p_sombra[50];
 extern const float IRR_MAX;
 extern const float IRR_MIN;
-
+extern float irr_eq_sol;
+extern float irr_eq_sombra;
 
 // VARIABLES PARA EL MPPT ADAPTATIVO
 #define UMBRAL_BRUSCO       150.0f  // Delta de irradiancia de un segundo a otro considerada como fluctuación brusca de sombra/Sol
 #define LIMITE_CAMBIOS      3       // Cuántos cambios rápidos se toleran antes de congelar el P&O
 #define TIEMPO_CONGELACION  4       // Segundos (iteraciones del bucle) que el MPPT se quedará fijo
-#define VOLTAJE_PUNTO_FIJO  19.5f   // Punto fijo a seguir al congelar el P&O (cercano al punto de máxima potencia promedio)
+//Considerar punto dinámico al congelar el P&O (valor anterior al bloqueo)
+//#define VOLTAJE_PUNTO_FIJO  19.5f   // Punto fijo a seguir al congelar el P&O (cercano al punto de máxima potencia promedio)
 
 
 #endif /* INC_VIPV_MPPT_H_ */

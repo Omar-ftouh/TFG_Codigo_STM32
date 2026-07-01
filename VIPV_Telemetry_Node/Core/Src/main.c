@@ -95,26 +95,38 @@ volatile uint8_t velocidad_coche = 0; // Para guardar la velocidad real capturad
 
 //----------------------- ALGORITMO MPPT -----------------------------
 
-// --- ARRAYS DE LAS CURVAS I-V --- (Promedio de todas las curvas muestreadas en excel)
-const float v_vector[50] = {0.0f, 0.548f, 1.097f, 1.645f, 2.194f, 2.742f, 3.291f, 3.839f, 4.388f, 4.936f, 5.485f, 6.033f, 6.582f,
-		7.13f, 7.679f, 8.228f, 8.776f, 9.324f, 9.873f, 10.422f, 10.97f, 11.519f, 12.067f, 12.615f, 13.164f, 13.712f, 14.261f,
-		14.809f, 15.358f, 15.907f, 16.455f, 17.004f, 17.552f, 18.101f, 18.649f, 19.198f, 19.746f, 20.295f, 20.844f, 21.392f,
-		21.941f, 22.489f, 23.037f, 23.587f, 24.134f, 24.683f, 25.231f, 25.78f, 26.329f, 26.877f };
+// --- ARRAYS DE LAS CURVAS I-V ---
+const float v_vector[50] = {0.0f, 0.5485f, 1.0970f, 1.6455f, 2.1941f, 2.7426f, 3.2911f, 3.8396f, 4.3881f, 4.9366f,
+		5.4852f, 6.0337f, 6.5822f, 7.1307f, 7.6792f, 8.2277f, 8.7762f, 9.3248f, 9.8733f, 10.4218f, 10.9703f, 11.5188f,
+		12.0673f, 12.6158f, 13.1644f, 13.7129f, 14.2614f, 14.8099f, 15.3584f, 15.9069f, 16.4555f, 17.0040f, 17.5525f,
+		18.1010f, 18.6495f, 19.1980f, 19.7465f, 20.2951f, 20.8436f, 21.3921f, 21.9406f, 22.4891f, 23.0376f, 23.5862f,
+		24.1347f, 24.6832f, 25.2317f, 25.7802f, 26.3287f, 26.8772f};
 
-const float i_sol[50] = {0.96f, 0.95f, 0.94f, 0.93f, 0.92f, 0.91f, 0.9f, 0.89f, 0.88f, 0.87f, 0.86f, 0.85f, 0.84f, 0.83f,
-		0.83f, 0.82f, 0.81f, 0.8f, 0.8f, 0.79f, 0.78f, 0.77f, 0.76f, 0.76f, 0.75f, 0.74f, 0.73f, 0.72f, 0.72f, 0.71f, 0.7f,
-		0.69f, 0.68f, 0.68f, 0.67f, 0.66f, 0.65f, 0.64f, 0.63f, 0.63f, 0.61f, 0.6f, 0.58f, 0.56f, 0.54f, 0.51f, 0.45f, 0.34f,
-		0.15f, -0.14f };
+const float i_sol[50] = {0.9576f, 0.9472f, 0.9368f, 0.9265f, 0.9161f, 0.9057f, 0.8953f, 0.8849f, 0.8745f, 0.8651f,
+		0.8596f, 0.8540f, 0.8482f, 0.8422f, 0.8360f, 0.8298f, 0.8244f, 0.8190f, 0.8134f, 0.8075f, 0.8015f, 0.7952f,
+		0.7890f, 0.7835f, 0.7779f, 0.7721f, 0.7661f, 0.7598f, 0.7533f, 0.7468f, 0.7412f, 0.7354f, 0.7293f, 0.7229f,
+		0.7163f, 0.7092f, 0.7018f, 0.6938f, 0.6852f, 0.6758f, 0.6654f, 0.6533f, 0.6392f, 0.6212f, 0.5962f, 0.5550f,
+		0.4832f, 0.3640f, 0.1721f, -0.1322f};
 
-const float i_sombra[50] = {0.87f, 0.85f, 0.83f, 0.82f, 0.8f, 0.79f, 0.77f, 0.75f, 0.74f, 0.73f, 0.71f, 0.69f, 0.68f, 0.67f,
-		0.66f, 0.64f, 0.63f, 0.62f, 0.61f, 0.6f, 0.59f, 0.58f, 0.57f, 0.56f, 0.55f, 0.54f, 0.53f, 0.52f, 0.51f, 0.5f, 0.49f,
-		0.47f, 0.46f, 0.45f, 0.43f, 0.42f, 0.4f, 0.39f, 0.37f, 0.36f, 0.34f, 0.32f, 0.3f, 0.28f, 0.26f, 0.23f, 0.19f, 0.13f,
-		0.02f, -0.24f };
+const float i_sombra[50] = {0.9392f, 0.9288f, 0.9185f, 0.9081f, 0.8978f, 0.8874f, 0.8770f, 0.8667f, 0.8563f, 0.8460f,
+		0.8369f, 0.8288f, 0.8203f, 0.8114f, 0.8021f, 0.7938f, 0.7870f, 0.7800f, 0.7728f, 0.7653f, 0.7576f, 0.7494f,
+		0.7408f, 0.7317f, 0.7234f, 0.7162f, 0.7087f, 0.7009f, 0.6928f, 0.6841f, 0.6750f, 0.6653f, 0.6552f, 0.6463f,
+		0.6384f, 0.6302f, 0.6216f, 0.6125f, 0.6027f, 0.5922f, 0.5808f, 0.5686f, 0.5551f, 0.5394f, 0.5191f, 0.4881f,
+		0.4315f, 0.3245f, 0.1421f, -0.1537f};
 
 
 //Arrays de potencia precalculada
 float p_sol[50];
 float p_sombra[50];
+
+
+// --- VARIABLES DE CALIBRACIÓN STC ---
+const float P_STC_REF = 56.233f; // Potencia máxima STC (condiciones de laboratorio)
+const float IRR_STC_REF = 1000.0f; // Irradiancia STC
+
+float irr_eq_sol = 0.0f;
+float irr_eq_sombra = 0.0f;
+
 
 //Umbrales de irradiancia calibrados
 const float IRR_MAX = 1000.0f;
@@ -198,11 +210,27 @@ int main(void)
   //mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 50);
 
 
-   // --- PRECALCULAR ARRAYS DE POTENCIA ---
-   for(int i = 0; i < 50; i++) {
-       p_sol[i] = v_vector[i] * i_sol[i];
-       p_sombra[i] = v_vector[i] * i_sombra[i];
-   }
+    // --- PRECALCULAR ARRAYS DE POTENCIA Y CALCULAR MÓDULOS SOL Y SOMBRA ---
+    float p_max_array_sol = 0.0f;
+    float p_max_array_sombra = 0.0f;
+
+    for(int i = 0; i < 50; i++) {
+        // Calcular potencias
+        p_sol[i] = v_vector[i] * i_sol[i];
+        p_sombra[i] = v_vector[i] * i_sombra[i];
+
+        // Encontrar el pico máximo de cada array
+        if(p_sol[i] > p_max_array_sol) p_max_array_sol = p_sol[i];
+        if(p_sombra[i] > p_max_array_sombra) p_max_array_sombra = p_sombra[i];
+    }
+
+    // REGLA DE 3 (Paso 1): Calcular a qué irradiancia equivalente se midieron estas curvas
+    irr_eq_sol = IRR_STC_REF * (p_max_array_sol / P_STC_REF);
+    irr_eq_sombra = IRR_STC_REF * (p_max_array_sombra / P_STC_REF);
+
+    // Se ajusta el inicio del MPPT para que empiece cerca del codo real (23V)
+    mppt_v_act = 20.0f;
+    mppt_v_ant = 19.0f;
 
   //_________________________________________________________________________________________________________________________
 
@@ -268,24 +296,23 @@ int main(void)
 	            VIPV_CAN_Pedir_RPM(&hfdcan1); // (Petición de diagnóstico: 0x7DF)
 
 
-	            // ====================================================================
+	            // --------------------------------------------------------------------
 	            // SISTEMA DE PROTECCIÓN: WATCHDOG DE LA MÁQUINA DE ESTADOS
-	            // ====================================================================
-	                        if (sensor_actual != BUS_LIBRE) {
-	                            // Si llegamos a un nuevo segundo y el bus sigue ocupado, ¡se ha colgado un callback!
+	            // --------------------------------------------------------------------
+	            if (sensor_actual != BUS_LIBRE) { //para evitar el cuelgue del bus CAN
 
-	                            // 1. Reseteo del periférico de hardware I2C por fuerza bruta
-	                            HAL_I2C_DeInit(&hi2c1);
-	                            HAL_I2C_Init(&hi2c1);
+	            	// Reseteo del periférico de hardware I2C
+	                HAL_I2C_DeInit(&hi2c1);
+	                HAL_I2C_Init(&hi2c1);
 
-	                            // 2. Limpieza de las banderas huérfanas
-	                            flag_temp_ready = 0;
-	                            flag_inercia_ready = 0;
+	                // Limpieza de las banderas
+	                flag_temp_ready = 0;
+	                flag_inercia_ready = 0;
 
-	                            // 3. Rescatamos el cerebro de la placa
-	                            sensor_actual = BUS_LIBRE;
-	                        }
-	            // ====================================================================
+	                // Liberación del BUS
+	                sensor_actual = BUS_LIBRE;
+	            }
+	            // --------------------------------------------------------------------
 
 	            // Disparo inicial sensor temperatura
 	            if(sensor_actual == BUS_LIBRE){
@@ -426,7 +453,7 @@ int main(void)
 
 
 		    if (modo_mppt == MPPT_MODO_CONGELADO) { // ESTADO: CONGELADO
-		    	// ESTADO CONGELADO: mppt_v_act queda fijado a 19.5V
+		    	// ESTADO CONGELADO: mppt_v_act se bloquea en el punto dinámico anterior
 
 		    	// Actualizar datos para la siguiente iteración
 		    	mppt_v_ant = mppt_v_act;
@@ -436,7 +463,6 @@ int main(void)
 		    }
 		    else {
 		    	// ESTADO NORMAL
-
 			    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
 
 			    	//float mppt_p_act = obtener_potencia_directa(mppt_v_act, v_vector, p_array_actual, 50);
