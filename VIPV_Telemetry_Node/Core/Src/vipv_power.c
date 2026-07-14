@@ -71,7 +71,7 @@ void VIPV_Power_Process(uint8_t *power_buffer, UART_HandleTypeDef *huart, float 
     *out_potencia = potencia;
 
 
-    // Chivato por el puerto serie
+    // Verfificación opcional por el puerto serie (PuTTY)
     char msg[100];
     sprintf(msg, "Estado: PAC1934 | V: %.2f V | I: %.3f A | P: %.2f W\r\n", voltaje_bus, corriente, potencia);
     HAL_UART_Transmit(huart, (uint8_t*)msg, strlen(msg), 100);

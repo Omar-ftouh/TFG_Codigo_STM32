@@ -108,11 +108,11 @@ const float i_sol[50] = {0.9576f, 0.9472f, 0.9368f, 0.9265f, 0.9161f, 0.9057f, 0
 		0.7163f, 0.7092f, 0.7018f, 0.6938f, 0.6852f, 0.6758f, 0.6654f, 0.6533f, 0.6392f, 0.6212f, 0.5962f, 0.5550f,
 		0.4832f, 0.3640f, 0.1721f, -0.1322f};
 
-const float i_sombra[50] = {0.9392f, 0.9288f, 0.9185f, 0.9081f, 0.8978f, 0.8874f, 0.8770f, 0.8667f, 0.8563f, 0.8460f,
-		0.8369f, 0.8288f, 0.8203f, 0.8114f, 0.8021f, 0.7938f, 0.7870f, 0.7800f, 0.7728f, 0.7653f, 0.7576f, 0.7494f,
-		0.7408f, 0.7317f, 0.7234f, 0.7162f, 0.7087f, 0.7009f, 0.6928f, 0.6841f, 0.6750f, 0.6653f, 0.6552f, 0.6463f,
-		0.6384f, 0.6302f, 0.6216f, 0.6125f, 0.6027f, 0.5922f, 0.5808f, 0.5686f, 0.5551f, 0.5394f, 0.5191f, 0.4881f,
-		0.4315f, 0.3245f, 0.1421f, -0.1537f};
+const float i_sombra[50] = {0.7131f, 0.6996f, 0.6862f, 0.6727f, 0.6592f, 0.6458f, 0.6323f, 0.6248f, 0.6175f, 0.6099f,
+		0.6020f, 0.5937f, 0.5848f, 0.5755f, 0.5658f, 0.5557f, 0.5453f, 0.5347f, 0.5239f, 0.5128f, 0.5034f, 0.4945f,
+		0.4855f, 0.4763f, 0.4668f, 0.4571f, 0.4472f, 0.4369f, 0.4263f, 0.4153f, 0.4038f, 0.3920f, 0.3795f, 0.3665f,
+		0.3531f, 0.3392f, 0.3250f, 0.3101f, 0.2947f, 0.2784f, 0.2612f, 0.2429f, 0.2233f, 0.2015f, 0.1775f, 0.1506f,
+		0.1193f, 0.0737f, -0.0480f, -0.3115f};
 
 
 //Arrays de potencia precalculada
@@ -133,13 +133,13 @@ const float IRR_MAX = 1000.0f;
 const float IRR_MIN = 10.0f;
 
 // --- VARIABLES DE ESTADO MPPT ---
-float mppt_v_ant = 18.0f;
+float mppt_v_ant = 0.0f;
 float mppt_p_ant = 0.0f;
-float mppt_v_act = 19.0f;
+float mppt_v_act = 0.0f;
 float mppt_paso = 0.1f; // Paso del algoritmo
 
 
-//______________________________________________________________________________________________mppt_v_act___________________________
+//_______________________________________________________________________________________________________________________
 
 /* USER CODE END PV */
 
@@ -206,31 +206,28 @@ int main(void)
 
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
-  // Inicialización del MPPT (asumiendo que arranca al sol)
-  //mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 50);
-
 
     // --- PRECALCULAR ARRAYS DE POTENCIA Y CALCULAR MÓDULOS SOL Y SOMBRA ---
     float p_max_array_sol = 0.0f;
     float p_max_array_sombra = 0.0f;
 
     for(int i = 0; i < 50; i++) {
-        // Calcular potencias
+        // Cálculo de las potencias
         p_sol[i] = v_vector[i] * i_sol[i];
         p_sombra[i] = v_vector[i] * i_sombra[i];
 
-        // Encontrar el pico máximo de cada array
+        // Se busca el pico máximo de cada array
         if(p_sol[i] > p_max_array_sol) p_max_array_sol = p_sol[i];
         if(p_sombra[i] > p_max_array_sombra) p_max_array_sombra = p_sombra[i];
     }
 
-    // REGLA DE 3 (Paso 1): Calcular a qué irradiancia equivalente se midieron estas curvas
+    // Se calcula a qué irradiancia equivalente se midieron estas curvas (Regla de 3)
     irr_eq_sol = IRR_STC_REF * (p_max_array_sol / P_STC_REF);
     irr_eq_sombra = IRR_STC_REF * (p_max_array_sombra / P_STC_REF);
 
     // Se ajusta el inicio del MPPT para que empiece cerca del codo real (23V)
-    mppt_v_act = 20.0f;
-    mppt_v_ant = 19.0f;
+    mppt_v_act = 21.0f;
+    mppt_v_ant = 20.9f;
 
   //_________________________________________________________________________________________________________________________
 
@@ -280,7 +277,7 @@ int main(void)
 
 	  if (HAL_GetTick() - tiempo_anterior >= 1000) {
 
-	            tiempo_anterior = HAL_GetTick(); //resetear
+	            tiempo_anterior = HAL_GetTick(); //reset
 
 
 	       // ARRANQUE DE SENSORES Y PETICIONES POR OBD (Nota: el acelerómetro se inicializa en vipv_accel.c)
@@ -288,7 +285,6 @@ int main(void)
 	            // Disparo sensor potencia
 	            //uint8_t cmd_refresh = 0x1F; // Comando REFRESH_V
 	            //HAL_I2C_Master_Transmit(&hi2c1, 0x20, &cmd_refresh, 1, 10);
-
 
 
 	            // Petición de Velocidad y de RPMs al coche por CAN (puerto OBD-II)
@@ -313,7 +309,6 @@ int main(void)
 	                sensor_actual = BUS_LIBRE;
 	            }
 	            // --------------------------------------------------------------------
-
 	            // Disparo inicial sensor temperatura
 	            if(sensor_actual == BUS_LIBRE){
 	                sensor_actual = LEYENDO_TEMP; //establecer estado de lectura de temperatura
@@ -321,7 +316,7 @@ int main(void)
 	                HAL_I2C_Mem_Read_IT(&hi2c1, 0x7E, 0x06, I2C_MEMADD_SIZE_8BIT, temp_buffer, 2); // Lectura continua STTS22H
 	      	  	  	//argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
 	            }
-
+	            // --------------------------------------------------------------------
 	   }
 
 
@@ -339,9 +334,8 @@ int main(void)
 	        VIPV_CAN_Send_Entorno(&hfdcan1, &hlpuart1, temperatura_actual);
 
 
-
-	        // Una vez el BUS QUEDA LIBRE, pasar el relevo al acelerómetro
-	        sensor_actual = LEYENDO_INERCIA; //establecer estado de lectura del acelerómetro
+	        // Una vez el bus queda libre, se pasa el relevo al acelerómetro
+	        sensor_actual = LEYENDO_INERCIA; //se establece el estado de lectura del acelerómetro
 
 	        HAL_I2C_Mem_Read_IT(&hi2c1, 0x3A, 0x32, I2C_MEMADD_SIZE_8BIT, inercia_buffer, 6); // Lectura continua ADXL345
 	        //argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
@@ -365,7 +359,7 @@ int main(void)
 
 
             /*
-            // Una vez el BUS QUEDA LIBRE, pasar el relevo al sensor de potencia
+            // Una vez el bus queda libre, se pasa el relevo al sensor de potencia
             sensor_actual = LEYENDO_POTENCIA; //establecer estado de lectura del sensor potencia
 
             // Leer 10 bytes seguidos empezando en la dirección 0x07 (VBUS1)
@@ -373,7 +367,7 @@ int main(void)
             //argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
             */
 
-            // Una vez el BUS QUEDA LIBRE, pasar el relevo al ADC para leer irradiancia
+            // Una vez el bus queda libre, se pasa el relevo al ADC para leer irradiancia
             sensor_actual = LEYENDO_IRRADIANCIA; //establecer estado de lectura de irradiancia
 
             HAL_ADC_Start_IT(&hadc1);
@@ -447,7 +441,7 @@ int main(void)
 		    // Cálculo potencia instante actual
 		    float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
 
-		    // Filtro adaptativo
+		    // FILTRO ADAPTATIVO
 		    //float mppt_v_sig = ejecutar_mppt_adaptativo(mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
 		    MPPT_Modo_t modo_mppt = ejecutar_mppt_adaptativo(&mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
 
@@ -463,10 +457,7 @@ int main(void)
 		    }
 		    else {
 		    	// ESTADO NORMAL
-			    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
-
-			    	//float mppt_p_act = obtener_potencia_directa(mppt_v_act, v_vector, p_array_actual, 50);
-			    	//float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
+			    for (int j = 0; j < 9; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
 
 			    	//float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
 			    	mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
@@ -480,10 +471,10 @@ int main(void)
 		    }
 
 
-		    // Empaquetar el resultado en CAN. Se envían: Voltaje actual, 0.0 en Corriente y Potencia resultante
+		    // Se empaqueta el resultado en CAN. Se envían: Voltaje actual, 0.0 en Corriente y Potencia resultante
 		    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, mppt_v_act, 0.0f, mppt_p_ant);
 
-		    // Apagar ADC hasta próxima lectura
+		    // Se apaga el ADC hasta próxima lectura
 		    HAL_ADC_Stop_IT(&hadc1);
 	  }
 

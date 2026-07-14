@@ -71,6 +71,7 @@ void VIPV_CAN_Init(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart) {
 /*
 void VIPV_CAN_SendTest(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart) {
 
+	//PRUEBA DE FUNCIONAMIENTO CORRECTO DEL CAN
 	static uint8_t contador = 0; // static para que la variable no se borre cada segundo
 
     // Relleno de los 8 bytes con datos de prueba fácilmente reconocibles
@@ -96,7 +97,7 @@ void VIPV_CAN_SendTest(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart) {
     	sprintf(ok, "-> Mensaje CAN [VIPV] enviado | Seq: %d\r\n", contador);
     	HAL_UART_Transmit(huart, (uint8_t*)ok, strlen(ok), 100);
 
-    	contador++; // Sumamos 1 para el siguiente segundo
+    	contador++;
     }
 }
 */
@@ -224,10 +225,10 @@ void VIPV_CAN_Pedir_Velocidad(FDCAN_HandleTypeDef *hfdcan) {
     // Los 8 bytes del estándar OBD-II para pedir la velocidad (PID 0x0D)
     uint8_t TxData_Req[8] = {0x02, 0x01, 0x0D, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    // Cambiamos temporalmente el ID de la cabecera al de peticiones de diagnóstico
+    // Se cambia temporalmente el ID de la cabecera al de peticiones de diagnóstico
     TxHeader.Identifier = 0x7DF;
 
-    // Lanzar la pregunta al bus CAN (y por tanto, al coche)
+    // Se lanza la pregunta al bus CAN (y por tanto, al coche)
     HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData_Req);
 }
 
@@ -237,9 +238,9 @@ void VIPV_CAN_Pedir_RPM(FDCAN_HandleTypeDef *hfdcan) {
     // Los 8 bytes del estándar OBD-II para pedir las RPM (PID 0x0C)
     uint8_t TxData_Req[8] = {0x02, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    // Cambiamos temporalmente el ID de la cabecera al de peticiones de diagnóstico
+    // Se cambia temporalmente el ID de la cabecera al de peticiones de diagnóstico
     TxHeader.Identifier = 0x7DF;
 
-    // Lanzar la pregunta al bus CAN
+    // Se lanza la pregunta al bus CAN
     HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData_Req);
 }

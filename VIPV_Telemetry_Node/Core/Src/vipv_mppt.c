@@ -11,7 +11,6 @@
 // ----------------- EQUIVALENCIA A LIBRERÍA numpy DE PYTHON --------------------
 
 // 1. Función para calcular la potencia directa (Interpolación Lineal)
-
 float obtener_potencia_directa(float v_actual, const float *array_v, float *array_p, int tamano) {
 
     // Equivalencia a np.clip en Python: Evitar salir de los límites del array
@@ -142,7 +141,7 @@ float obtener_potencia_dinamica(float v_bus, float irradiancia) {
         // Obtener la potencia de la curva base para el voltaje actual
         float p_base = obtener_potencia_directa(v_bus, v_vector, p_sol, 50);
 
-        // REGLA DE 3: Se aplicar ratio de irradiancias
+        // REGLA DE 3: Se aplica ratio de irradiancias
         float ratio = irradiancia / irr_eq_sol;
         p_escalada = p_base * ratio;
 
@@ -150,7 +149,7 @@ float obtener_potencia_dinamica(float v_bus, float irradiancia) {
     	// Obtener la potencia de la curva base para el voltaje actual
         float p_base = obtener_potencia_directa(v_bus, v_vector, p_sombra, 50);
 
-        // REGLA DE 3: Se aplicar ratio de irradiancias
+        // REGLA DE 3: Se aplica ratio de irradiancias
         float ratio = irradiancia / irr_eq_sombra;
         p_escalada = p_base * ratio;
     }
@@ -163,12 +162,12 @@ float obtener_potencia_dinamica(float v_bus, float irradiancia) {
 static float irr_anterior = 0.0f;
 static int contador_cambios = 0;
 static int timer_congelacion = 0;
-static float voltaje_congelado = 23.0f; //valor inicial
+static float voltaje_congelado = 0.0f;
 
 
 MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_anterior, float p_anterior, float paso_v, float p_actual) {
 
-	// STATE 1: EL SISTEMA YA ESTÁ CONGELADO
+	    // STATE 1: EL SISTEMA YA ESTÁ CONGELADO
 	    if (timer_congelacion > 0) {
 	        *v_actual = voltaje_congelado; // Forzar el voltaje guardado dinámicamente antes de entrar en zona de alto dinamismo
 	        timer_congelacion--;

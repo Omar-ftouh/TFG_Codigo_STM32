@@ -1,4 +1,4 @@
-../Core/Src/vipv_mppt.c:15:7:obtener_potencia_directa	6
-../Core/Src/vipv_mppt.c:87:7:mppt_po	4
-../Core/Src/vipv_mppt.c:137:7:obtener_potencia_dinamica	2
-../Core/Src/vipv_mppt.c:169:13:ejecutar_mppt_adaptativo	6
+../Core/Src/vipv_mppt.c:14:7:obtener_potencia_directa	6
+../Core/Src/vipv_mppt.c:86:7:mppt_po	4
+../Core/Src/vipv_mppt.c:136:7:obtener_potencia_dinamica	2
+../Core/Src/vipv_mppt.c:168:13:ejecutar_mppt_adaptativo	6

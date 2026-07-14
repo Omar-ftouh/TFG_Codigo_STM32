@@ -57,7 +57,7 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
 	float z_fisico = z_raw * 0.0039f;
 
 	// El sensor físicamente está dispuesto dentro de la caja con una inclinación de 90º sobre el eje Z
-	// Haciendo una rotación de 90º sobre el eje X:
+	// Rotación de 90º sobre el eje X:
 	float x_g = z_fisico;              // El antiguo eje Z ahora es el X (Variará con la aceleración / frenada del coche)
 	float y_g = y_fisico + 0.04f;      // Corrección del error de -0.04g que existe en reposo sobre el eje Y
 	float z_g = x_fisico;              // El antiguo eje X ahora es el Z (Gravedad ~0.98g)
@@ -72,7 +72,7 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
     static float x_ant = 0.0f, y_ant = 0.0f, z_ant = 0.0f;
     static int contador_quieto = 0;
 
-    // Delta entre magnitud actual y la anterior (hace 1 segundo por ej.) para cada eje
+    // Delta entre magnitud actual y la anterior (hace 1 segundo) para cada eje
     float delta_x = fabsf(x_g - x_ant);
     float delta_y = fabsf(y_g - y_ant);
     float delta_z = fabsf(z_g - z_ant);
@@ -81,9 +81,7 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
     x_ant = x_g; y_ant = y_g; z_ant = z_g;
 
 
-
-
-    // Establecer umbral de movimiento (0.05G por ej.)
+    // Establecer umbral de movimiento (0.05g)
     if (delta_x < 0.05f && delta_y < 0.05f && delta_z < 0.05f) {
         contador_quieto++;
     }

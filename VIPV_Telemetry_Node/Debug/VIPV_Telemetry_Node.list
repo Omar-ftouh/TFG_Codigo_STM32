@@ -9,43 +9,43 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
   2 .rodata       00000804  0800d2a0  0800d2a0  0000e2a0  2**3
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .ARM.extab    00000000  0800daa4  0800daa4  0000f1e4  2**0
+  3 .ARM.extab    00000000  0800daa4  0800daa4  0000f1d8  2**0
                   CONTENTS, READONLY
   4 .ARM          00000008  0800daa4  0800daa4  0000eaa4  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  5 .preinit_array 00000000  0800daac  0800daac  0000f1e4  2**0
+  5 .preinit_array 00000000  0800daac  0800daac  0000f1d8  2**0
                   CONTENTS, ALLOC, LOAD, DATA
   6 .init_array   00000004  0800daac  0800daac  0000eaac  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   7 .fini_array   00000004  0800dab0  0800dab0  0000eab0  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  8 .data         000001e4  20000000  0800dab4  0000f000  2**2
+  8 .data         000001d8  20000000  0800dab4  0000f000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00000588  200001e4  0800dc98  0000f1e4  2**2
+  9 .bss          00000594  200001d8  0800dc8c  0000f1d8  2**2
                   ALLOC
- 10 ._user_heap_stack 00000604  2000076c  0800dc98  0000f76c  2**0
+ 10 ._user_heap_stack 00000604  2000076c  0800dc8c  0000f76c  2**0
                   ALLOC
- 11 .ARM.attributes 00000030  00000000  00000000  0000f1e4  2**0
+ 11 .ARM.attributes 00000030  00000000  00000000  0000f1d8  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0001b78d  00000000  00000000  0000f214  2**0
+ 12 .debug_info   0001b78d  00000000  00000000  0000f208  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00003328  00000000  00000000  0002a9a1  2**0
+ 13 .debug_abbrev 00003328  00000000  00000000  0002a995  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00001520  00000000  00000000  0002dcd0  2**3
+ 14 .debug_aranges 00001520  00000000  00000000  0002dcc0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 00001045  00000000  00000000  0002f1f0  2**0
+ 15 .debug_rnglists 00001045  00000000  00000000  0002f1e0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00021f5b  00000000  00000000  00030235  2**0
+ 16 .debug_macro  00021f5b  00000000  00000000  00030225  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0001985b  00000000  00000000  00052190  2**0
+ 17 .debug_line   0001985b  00000000  00000000  00052180  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000d72d3  00000000  00000000  0006b9eb  2**0
+ 18 .debug_str    000d72d3  00000000  00000000  0006b9db  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  00142cbe  2**0
+ 19 .comment      00000043  00000000  00000000  00142cae  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00006ae8  00000000  00000000  00142d04  2**2
+ 20 .debug_frame  00006ae8  00000000  00000000  00142cf4  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000007a  00000000  00000000  001497ec  2**0
+ 21 .debug_line_str 0000007a  00000000  00000000  001497dc  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -62,7 +62,7 @@ Disassembly of section .text:
  80001f2:	2301      	movs	r3, #1
  80001f4:	7023      	strb	r3, [r4, #0]
  80001f6:	bd10      	pop	{r4, pc}
- 80001f8:	200001e4 	.word	0x200001e4
+ 80001f8:	200001d8 	.word	0x200001d8
  80001fc:	00000000 	.word	0x00000000
  8000200:	0800d288 	.word	0x0800d288
 
@@ -75,7 +75,7 @@ Disassembly of section .text:
  800020e:	f3af 8000 	nop.w
  8000212:	bd08      	pop	{r3, pc}
  8000214:	00000000 	.word	0x00000000
- 8000218:	200001e8 	.word	0x200001e8
+ 8000218:	200001dc 	.word	0x200001dc
  800021c:	0800d288 	.word	0x0800d288
 
 08000220 <memchr>:
@@ -1288,8 +1288,6 @@ int main(void)
  8000f60:	217f      	movs	r1, #127	@ 0x7f
  8000f62:	4851      	ldr	r0, [pc, #324]	@ (80010a8 <main+0x184>)
  8000f64:	f003 fcb2 	bl	80048cc <HAL_ADCEx_Calibration_Start>
-  // Inicialización del MPPT (asumiendo que arranca al sol)
-  //mppt_p_ant = obtener_potencia_panel(mppt_v_ant, v_vector, i_sol, 50);
 
 
     // --- PRECALCULAR ARRAYS DE POTENCIA Y CALCULAR MÓDULOS SOL Y SOMBRA ---
@@ -1304,7 +1302,7 @@ int main(void)
  8000f78:	2300      	movs	r3, #0
  8000f7a:	67fb      	str	r3, [r7, #124]	@ 0x7c
  8000f7c:	e052      	b.n	8001024 <main+0x100>
-        // Calcular potencias
+        // Cálculo de las potencias
         p_sol[i] = v_vector[i] * i_sol[i];
  8000f7e:	4a4b      	ldr	r2, [pc, #300]	@ (80010ac <main+0x188>)
  8000f80:	6ffb      	ldr	r3, [r7, #124]	@ 0x7c
@@ -1340,7 +1338,7 @@ int main(void)
  8000fc8:	4413      	add	r3, r2
  8000fca:	edc3 7a00 	vstr	s15, [r3]
 
-        // Encontrar el pico máximo de cada array
+        // Se busca el pico máximo de cada array
         if(p_sol[i] > p_max_array_sol) p_max_array_sol = p_sol[i];
  8000fce:	4a39      	ldr	r2, [pc, #228]	@ (80010b4 <main+0x190>)
  8000fd0:	6ffb      	ldr	r3, [r7, #124]	@ 0x7c
@@ -1382,7 +1380,7 @@ int main(void)
  8001028:	dda9      	ble.n	8000f7e <main+0x5a>
     }
 
-    // REGLA DE 3 (Paso 1): Calcular a qué irradiancia equivalente se midieron estas curvas
+    // Se calcula a qué irradiancia equivalente se midieron estas curvas (Regla de 3)
     irr_eq_sol = IRR_STC_REF * (p_max_array_sol / P_STC_REF);
  800102a:	eddf 6a25 	vldr	s13, [pc, #148]	@ 80010c0 <main+0x19c>
  800102e:	ed97 7a21 	vldr	s14, [r7, #132]	@ 0x84
@@ -1401,11 +1399,11 @@ int main(void)
  800105a:	edc3 7a00 	vstr	s15, [r3]
 
     // Se ajusta el inicio del MPPT para que empiece cerca del codo real (23V)
-    mppt_v_act = 20.0f;
+    mppt_v_act = 21.0f;
  800105e:	4b1c      	ldr	r3, [pc, #112]	@ (80010d0 <main+0x1ac>)
  8001060:	4a1c      	ldr	r2, [pc, #112]	@ (80010d4 <main+0x1b0>)
  8001062:	601a      	str	r2, [r3, #0]
-    mppt_v_ant = 19.0f;
+    mppt_v_ant = 20.9f;
  8001064:	4b1c      	ldr	r3, [pc, #112]	@ (80010d8 <main+0x1b4>)
  8001066:	4a1d      	ldr	r2, [pc, #116]	@ (80010dc <main+0x1b8>)
  8001068:	601a      	str	r2, [r3, #0]
@@ -1438,23 +1436,23 @@ int main(void)
  8001094:	2301      	movs	r3, #1
  8001096:	f887 3077 	strb.w	r3, [r7, #119]	@ 0x77
  800109a:	e051      	b.n	8001140 <main+0x21c>
- 800109c:	20000330 	.word	0x20000330
- 80010a0:	20000384 	.word	0x20000384
- 80010a4:	200002cc 	.word	0x200002cc
- 80010a8:	20000200 	.word	0x20000200
+ 800109c:	20000324 	.word	0x20000324
+ 80010a0:	20000378 	.word	0x20000378
+ 80010a4:	200002c0 	.word	0x200002c0
+ 80010a8:	200001f4 	.word	0x200001f4
  80010ac:	0800d484 	.word	0x0800d484
  80010b0:	0800d54c 	.word	0x0800d54c
- 80010b4:	20000434 	.word	0x20000434
+ 80010b4:	20000428 	.word	0x20000428
  80010b8:	0800d614 	.word	0x0800d614
- 80010bc:	200004fc 	.word	0x200004fc
+ 80010bc:	200004f0 	.word	0x200004f0
  80010c0:	4260ee98 	.word	0x4260ee98
  80010c4:	447a0000 	.word	0x447a0000
- 80010c8:	200005c4 	.word	0x200005c4
- 80010cc:	200005c8 	.word	0x200005c8
- 80010d0:	20000004 	.word	0x20000004
- 80010d4:	41a00000 	.word	0x41a00000
- 80010d8:	20000000 	.word	0x20000000
- 80010dc:	41980000 	.word	0x41980000
+ 80010c8:	200005b8 	.word	0x200005b8
+ 80010cc:	200005bc 	.word	0x200005bc
+ 80010d0:	200005c8 	.word	0x200005c8
+ 80010d4:	41a80000 	.word	0x41a80000
+ 80010d8:	200005c0 	.word	0x200005c0
+ 80010dc:	41a73333 	.word	0x41a73333
  80010e0:	0800d2a0 	.word	0x0800d2a0
       // Mandar ping a la dirección 'i' desplazada 1 bit a la izquierda
       HAL_StatusTypeDef result = HAL_I2C_IsDeviceReady(&hi2c1, (uint16_t)(i<<1), 2, 10);
@@ -1552,13 +1550,13 @@ int main(void)
  80011a6:	f5b3 7f7a 	cmp.w	r3, #1000	@ 0x3e8
  80011aa:	d330      	bcc.n	800120e <main+0x2ea>
 
-	            tiempo_anterior = HAL_GetTick(); //resetear
+	            tiempo_anterior = HAL_GetTick(); //reset
  80011ac:	f001 fde6 	bl	8002d7c <HAL_GetTick>
  80011b0:	4603      	mov	r3, r0
  80011b2:	4a93      	ldr	r2, [pc, #588]	@ (8001400 <main+0x4dc>)
  80011b4:	6013      	str	r3, [r2, #0]
+	            //uint8_t cmd_refresh = 0x1F; // Comando REFRESH_V
 	            //HAL_I2C_Master_Transmit(&hi2c1, 0x20, &cmd_refresh, 1, 10);
-
 
 
 	            // Petición de Velocidad y de RPMs al coche por CAN (puerto OBD-II)
@@ -1605,7 +1603,6 @@ int main(void)
  80011e8:	701a      	strb	r2, [r3, #0]
 	            }
 	            // --------------------------------------------------------------------
-
 	            // Disparo inicial sensor temperatura
 	            if(sensor_actual == BUS_LIBRE){
  80011ea:	4b87      	ldr	r3, [pc, #540]	@ (8001408 <main+0x4e4>)
@@ -1661,9 +1658,8 @@ int main(void)
  8001232:	f001 f92b 	bl	800248c <VIPV_CAN_Send_Entorno>
 
 
-
-	        // Una vez el BUS QUEDA LIBRE, pasar el relevo al acelerómetro
-	        sensor_actual = LEYENDO_INERCIA; //establecer estado de lectura del acelerómetro
+	        // Una vez el bus queda libre, se pasa el relevo al acelerómetro
+	        sensor_actual = LEYENDO_INERCIA; //se establece el estado de lectura del acelerómetro
  8001236:	4b74      	ldr	r3, [pc, #464]	@ (8001408 <main+0x4e4>)
  8001238:	2202      	movs	r2, #2
  800123a:	701a      	strb	r2, [r3, #0]
@@ -1724,7 +1720,7 @@ int main(void)
             //argumentos: hi2c, DevAddress, MemAddress, MemAddSize, pData, Size
             */
 
-            // Una vez el BUS QUEDA LIBRE, pasar el relevo al ADC para leer irradiancia
+            // Una vez el bus queda libre, se pasa el relevo al ADC para leer irradiancia
             sensor_actual = LEYENDO_IRRADIANCIA; //establecer estado de lectura de irradiancia
  8001296:	4b5c      	ldr	r3, [pc, #368]	@ (8001408 <main+0x4e4>)
  8001298:	2204      	movs	r2, #4
@@ -1794,7 +1790,7 @@ int main(void)
  8001302:	f001 fb5b 	bl	80029bc <obtener_potencia_dinamica>
  8001306:	ed87 0a17 	vstr	s0, [r7, #92]	@ 0x5c
 
-		    // Filtro adaptativo
+		    // FILTRO ADAPTATIVO
 		    //float mppt_v_sig = ejecutar_mppt_adaptativo(mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
 		    MPPT_Modo_t modo_mppt = ejecutar_mppt_adaptativo(&mppt_v_act, irradiancia, mppt_v_ant, mppt_p_ant, mppt_paso, mppt_p_act);
  800130a:	4b4b      	ldr	r3, [pc, #300]	@ (8001438 <main+0x514>)
@@ -1836,13 +1832,10 @@ int main(void)
 		    }
 		    else {
 		    	// ESTADO NORMAL
-			    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
+			    for (int j = 0; j < 9; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
  8001354:	2300      	movs	r3, #0
  8001356:	673b      	str	r3, [r7, #112]	@ 0x70
  8001358:	e031      	b.n	80013be <main+0x49a>
-
-			    	//float mppt_p_act = obtener_potencia_directa(mppt_v_act, v_vector, p_array_actual, 50);
-			    	//float mppt_v_sig = mppt_po(mppt_v_act, mppt_p_act, mppt_v_ant, mppt_p_ant, mppt_paso);
 
 			    	//float mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
 			    	mppt_p_act = obtener_potencia_dinamica(mppt_v_act, irradiancia);
@@ -1883,18 +1876,18 @@ int main(void)
  80013b2:	4a20      	ldr	r2, [pc, #128]	@ (8001434 <main+0x510>)
  80013b4:	6d7b      	ldr	r3, [r7, #84]	@ 0x54
  80013b6:	6013      	str	r3, [r2, #0]
-			    for (int j = 0; j < 10; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
+			    for (int j = 0; j < 9; j++) { // Aumento de la velocidad de seguimiento del MPPT en 10 pasos
  80013b8:	6f3b      	ldr	r3, [r7, #112]	@ 0x70
  80013ba:	3301      	adds	r3, #1
  80013bc:	673b      	str	r3, [r7, #112]	@ 0x70
  80013be:	6f3b      	ldr	r3, [r7, #112]	@ 0x70
- 80013c0:	2b09      	cmp	r3, #9
+ 80013c0:	2b08      	cmp	r3, #8
  80013c2:	ddca      	ble.n	800135a <main+0x436>
 			    }
 		    }
 
 
-		    // Empaquetar el resultado en CAN. Se envían: Voltaje actual, 0.0 en Corriente y Potencia resultante
+		    // Se empaqueta el resultado en CAN. Se envían: Voltaje actual, 0.0 en Corriente y Potencia resultante
 		    VIPV_CAN_Send_Potencia(&hfdcan1, &hlpuart1, mppt_v_act, 0.0f, mppt_p_ant);
  80013c4:	4b1b      	ldr	r3, [pc, #108]	@ (8001434 <main+0x510>)
  80013c6:	edd3 7a00 	vldr	s15, [r3]
@@ -1907,34 +1900,34 @@ int main(void)
  80013de:	4809      	ldr	r0, [pc, #36]	@ (8001404 <main+0x4e0>)
  80013e0:	f001 f904 	bl	80025ec <VIPV_CAN_Send_Potencia>
 
-		    // Apagar ADC hasta próxima lectura
+		    // Se apaga el ADC hasta próxima lectura
 		    HAL_ADC_Stop_IT(&hadc1);
  80013e4:	480d      	ldr	r0, [pc, #52]	@ (800141c <main+0x4f8>)
  80013e6:	f002 fa17 	bl	8003818 <HAL_ADC_Stop_IT>
 	  if (HAL_GetTick() - tiempo_anterior >= 1000) {
  80013ea:	e6d6      	b.n	800119a <main+0x276>
- 80013ec:	20000330 	.word	0x20000330
+ 80013ec:	20000324 	.word	0x20000324
  80013f0:	0800d2c8 	.word	0x0800d2c8
- 80013f4:	20000384 	.word	0x20000384
+ 80013f4:	20000378 	.word	0x20000378
  80013f8:	0800d2f4 	.word	0x0800d2f4
  80013fc:	0800d320 	.word	0x0800d320
- 8001400:	2000042c 	.word	0x2000042c
- 8001404:	200002cc 	.word	0x200002cc
- 8001408:	20000430 	.word	0x20000430
- 800140c:	20000418 	.word	0x20000418
- 8001410:	20000419 	.word	0x20000419
- 8001414:	2000041c 	.word	0x2000041c
- 8001418:	20000420 	.word	0x20000420
- 800141c:	20000200 	.word	0x20000200
- 8001420:	2000041a 	.word	0x2000041a
- 8001424:	20000428 	.word	0x20000428
+ 8001400:	20000420 	.word	0x20000420
+ 8001404:	200002c0 	.word	0x200002c0
+ 8001408:	20000424 	.word	0x20000424
+ 800140c:	2000040c 	.word	0x2000040c
+ 8001410:	2000040d 	.word	0x2000040d
+ 8001414:	20000410 	.word	0x20000410
+ 8001418:	20000414 	.word	0x20000414
+ 800141c:	200001f4 	.word	0x200001f4
+ 8001420:	2000040e 	.word	0x2000040e
+ 8001424:	2000041c 	.word	0x2000041c
  8001428:	457ff000 	.word	0x457ff000
  800142c:	40533333 	.word	0x40533333
  8001430:	4469a51f 	.word	0x4469a51f
- 8001434:	20000004 	.word	0x20000004
- 8001438:	20000000 	.word	0x20000000
- 800143c:	200005cc 	.word	0x200005cc
- 8001440:	20000008 	.word	0x20000008
+ 8001434:	200005c8 	.word	0x200005c8
+ 8001438:	200005c0 	.word	0x200005c0
+ 800143c:	200005c4 	.word	0x200005c4
+ 8001440:	20000000 	.word	0x20000000
  8001444:	00000000 	.word	0x00000000
 
 08001448 <SystemClock_Config>:
@@ -2217,7 +2210,7 @@ static void MX_ADC1_Init(void)
  80015c2:	46bd      	mov	sp, r7
  80015c4:	bd80      	pop	{r7, pc}
  80015c6:	bf00      	nop
- 80015c8:	20000200 	.word	0x20000200
+ 80015c8:	200001f4 	.word	0x200001f4
  80015cc:	04300002 	.word	0x04300002
 
 080015d0 <MX_FDCAN1_Init>:
@@ -2323,7 +2316,7 @@ static void MX_FDCAN1_Init(void)
 }
  8001650:	bf00      	nop
  8001652:	bd80      	pop	{r7, pc}
- 8001654:	200002cc 	.word	0x200002cc
+ 8001654:	200002c0 	.word	0x200002c0
  8001658:	40006400 	.word	0x40006400
 
 0800165c <MX_I2C1_Init>:
@@ -2422,7 +2415,7 @@ static void MX_I2C1_Init(void)
  80016ca:	bf00      	nop
  80016cc:	bd80      	pop	{r7, pc}
  80016ce:	bf00      	nop
- 80016d0:	20000330 	.word	0x20000330
+ 80016d0:	20000324 	.word	0x20000324
  80016d4:	40005400 	.word	0x40005400
  80016d8:	20510e2d 	.word	0x20510e2d
 
@@ -2530,7 +2523,7 @@ static void MX_LPUART1_UART_Init(void)
  8001762:	bf00      	nop
  8001764:	bd80      	pop	{r7, pc}
  8001766:	bf00      	nop
- 8001768:	20000384 	.word	0x20000384
+ 8001768:	20000378 	.word	0x20000378
  800176c:	40008000 	.word	0x40008000
 
 08001770 <MX_DMA_Init>:
@@ -2769,9 +2762,9 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
  80018d4:	4770      	bx	lr
  80018d6:	bf00      	nop
  80018d8:	40005400 	.word	0x40005400
- 80018dc:	20000430 	.word	0x20000430
- 80018e0:	20000418 	.word	0x20000418
- 80018e4:	20000419 	.word	0x20000419
+ 80018dc:	20000424 	.word	0x20000424
+ 80018e0:	2000040c 	.word	0x2000040c
+ 80018e4:	2000040d 	.word	0x2000040d
 
 080018e8 <HAL_ADC_ConvCpltCallback>:
 
@@ -2819,9 +2812,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
  800191e:	3708      	adds	r7, #8
  8001920:	46bd      	mov	sp, r7
  8001922:	bd80      	pop	{r7, pc}
- 8001924:	20000430 	.word	0x20000430
- 8001928:	20000428 	.word	0x20000428
- 800192c:	2000041a 	.word	0x2000041a
+ 8001924:	20000424 	.word	0x20000424
+ 8001928:	2000041c 	.word	0x2000041c
+ 800192c:	2000040e 	.word	0x2000040e
 
 08001930 <HAL_FDCAN_RxFifo0Callback>:
 
@@ -2868,7 +2861,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
  8001966:	3738      	adds	r7, #56	@ 0x38
  8001968:	46bd      	mov	sp, r7
  800196a:	bd80      	pop	{r7, pc}
- 800196c:	20000431 	.word	0x20000431
+ 800196c:	20000425 	.word	0x20000425
 
 08001970 <Error_Handler>:
 /**
@@ -3123,7 +3116,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
  8001ac8:	46bd      	mov	sp, r7
  8001aca:	bd80      	pop	{r7, pc}
  8001acc:	40021000 	.word	0x40021000
- 8001ad0:	2000026c 	.word	0x2000026c
+ 8001ad0:	20000260 	.word	0x20000260
  8001ad4:	40020008 	.word	0x40020008
 
 08001ad8 <HAL_FDCAN_MspInit>:
@@ -3792,7 +3785,7 @@ void DMA1_Channel1_IRQHandler(void)
  8001e2a:	bf00      	nop
  8001e2c:	bd80      	pop	{r7, pc}
  8001e2e:	bf00      	nop
- 8001e30:	2000026c 	.word	0x2000026c
+ 8001e30:	20000260 	.word	0x20000260
 
 08001e34 <ADC1_2_IRQHandler>:
 
@@ -3816,7 +3809,7 @@ void ADC1_2_IRQHandler(void)
  8001e3e:	bf00      	nop
  8001e40:	bd80      	pop	{r7, pc}
  8001e42:	bf00      	nop
- 8001e44:	20000200 	.word	0x20000200
+ 8001e44:	200001f4 	.word	0x200001f4
 
 08001e48 <FDCAN1_IT0_IRQHandler>:
 
@@ -3840,7 +3833,7 @@ void FDCAN1_IT0_IRQHandler(void)
  8001e52:	bf00      	nop
  8001e54:	bd80      	pop	{r7, pc}
  8001e56:	bf00      	nop
- 8001e58:	200002cc 	.word	0x200002cc
+ 8001e58:	200002c0 	.word	0x200002c0
 
 08001e5c <FDCAN1_IT1_IRQHandler>:
 
@@ -3864,7 +3857,7 @@ void FDCAN1_IT1_IRQHandler(void)
  8001e66:	bf00      	nop
  8001e68:	bd80      	pop	{r7, pc}
  8001e6a:	bf00      	nop
- 8001e6c:	200002cc 	.word	0x200002cc
+ 8001e6c:	200002c0 	.word	0x200002c0
 
 08001e70 <I2C1_EV_IRQHandler>:
 
@@ -3888,7 +3881,7 @@ void I2C1_EV_IRQHandler(void)
  8001e7a:	bf00      	nop
  8001e7c:	bd80      	pop	{r7, pc}
  8001e7e:	bf00      	nop
- 8001e80:	20000330 	.word	0x20000330
+ 8001e80:	20000324 	.word	0x20000324
 
 08001e84 <I2C1_ER_IRQHandler>:
 
@@ -3912,7 +3905,7 @@ void I2C1_ER_IRQHandler(void)
  8001e8e:	bf00      	nop
  8001e90:	bd80      	pop	{r7, pc}
  8001e92:	bf00      	nop
- 8001e94:	20000330 	.word	0x20000330
+ 8001e94:	20000324 	.word	0x20000324
 
 08001e98 <_getpid>:
 void initialise_monitor_handles()
@@ -4218,7 +4211,7 @@ void *_sbrk(ptrdiff_t incr)
  8002012:	bd80      	pop	{r7, pc}
  8002014:	20008000 	.word	0x20008000
  8002018:	00000400 	.word	0x00000400
- 800201c:	200005d0 	.word	0x200005d0
+ 800201c:	200005cc 	.word	0x200005cc
  8002020:	20000770 	.word	0x20000770
 
 08002024 <SystemInit>:
@@ -4427,7 +4420,7 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
  800219a:	edc7 7a31 	vstr	s15, [r7, #196]	@ 0xc4
 
 	// El sensor físicamente está dispuesto dentro de la caja con una inclinación de 90º sobre el eje Z
-	// Haciendo una rotación de 90º sobre el eje X:
+	// Rotación de 90º sobre el eje X:
 	float x_g = z_fisico;              // El antiguo eje Z ahora es el X (Variará con la aceleración / frenada del coche)
  800219e:	f8d7 30c4 	ldr.w	r3, [r7, #196]	@ 0xc4
  80021a2:	f8c7 30c0 	str.w	r3, [r7, #192]	@ 0xc0
@@ -4457,7 +4450,7 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
     static float x_ant = 0.0f, y_ant = 0.0f, z_ant = 0.0f;
     static int contador_quieto = 0;
 
-    // Delta entre magnitud actual y la anterior (hace 1 segundo por ej.) para cada eje
+    // Delta entre magnitud actual y la anterior (hace 1 segundo) para cada eje
     float delta_x = fabsf(x_g - x_ant);
  80021d8:	4b59      	ldr	r3, [pc, #356]	@ (8002340 <VIPV_Accel_Process+0x244>)
  80021da:	edd3 7a00 	vldr	s15, [r3]
@@ -4493,9 +4486,7 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
  8002230:	6013      	str	r3, [r2, #0]
 
 
-
-
-    // Establecer umbral de movimiento (0.05G por ej.)
+    // Establecer umbral de movimiento (0.05g)
     if (delta_x < 0.05f && delta_y < 0.05f && delta_z < 0.05f) {
  8002232:	edd7 7a2d 	vldr	s15, [r7, #180]	@ 0xb4
  8002236:	ed9f 7a45 	vldr	s14, [pc, #276]	@ 800234c <VIPV_Accel_Process+0x250>
@@ -4602,11 +4593,11 @@ void VIPV_Accel_Process(uint8_t *inercia_buffer, UART_HandleTypeDef *huart, floa
  8002336:	bf00      	nop
  8002338:	3b7f9724 	.word	0x3b7f9724
  800233c:	3d23d70a 	.word	0x3d23d70a
- 8002340:	200005d4 	.word	0x200005d4
- 8002344:	200005d8 	.word	0x200005d8
- 8002348:	200005dc 	.word	0x200005dc
+ 8002340:	200005d0 	.word	0x200005d0
+ 8002344:	200005d4 	.word	0x200005d4
+ 8002348:	200005d8 	.word	0x200005d8
  800234c:	3d4ccccd 	.word	0x3d4ccccd
- 8002350:	200005e0 	.word	0x200005e0
+ 8002350:	200005dc 	.word	0x200005dc
  8002354:	447a0000 	.word	0x447a0000
  8002358:	0800d390 	.word	0x0800d390
  800235c:	0800d3c0 	.word	0x0800d3c0
@@ -4784,7 +4775,7 @@ void VIPV_CAN_Init(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huart) {
  8002476:	3750      	adds	r7, #80	@ 0x50
  8002478:	46bd      	mov	sp, r7
  800247a:	bdb0      	pop	{r4, r5, r7, pc}
- 800247c:	200005e4 	.word	0x200005e4
+ 800247c:	200005e0 	.word	0x200005e0
  8002480:	0800d3f4 	.word	0x0800d3f4
  8002484:	0800d420 	.word	0x0800d420
  8002488:	0800d440 	.word	0x0800d440
@@ -4867,8 +4858,8 @@ void VIPV_CAN_Send_Entorno(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *huar
  8002500:	bd80      	pop	{r7, pc}
  8002502:	bf00      	nop
  8002504:	42c80000 	.word	0x42c80000
- 8002508:	20000608 	.word	0x20000608
- 800250c:	200005e4 	.word	0x200005e4
+ 8002508:	20000604 	.word	0x20000604
+ 800250c:	200005e0 	.word	0x200005e0
 
 08002510 <VIPV_CAN_Send_Dinamica>:
 
@@ -4981,8 +4972,8 @@ void VIPV_CAN_Send_Dinamica(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *hua
  80025dc:	bd80      	pop	{r7, pc}
  80025de:	bf00      	nop
  80025e0:	42c80000 	.word	0x42c80000
- 80025e4:	20000609 	.word	0x20000609
- 80025e8:	200005e4 	.word	0x200005e4
+ 80025e4:	20000605 	.word	0x20000605
+ 80025e8:	200005e0 	.word	0x200005e0
 
 080025ec <VIPV_CAN_Send_Potencia>:
 
@@ -5104,8 +5095,8 @@ void VIPV_CAN_Send_Potencia(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *hua
  80026be:	bf00      	nop
  80026c0:	42c80000 	.word	0x42c80000
  80026c4:	447a0000 	.word	0x447a0000
- 80026c8:	2000060a 	.word	0x2000060a
- 80026cc:	200005e4 	.word	0x200005e4
+ 80026c8:	20000606 	.word	0x20000606
+ 80026cc:	200005e0 	.word	0x200005e0
 
 080026d0 <VIPV_CAN_Send_Irradiancia>:
 
@@ -5183,8 +5174,8 @@ void VIPV_CAN_Send_Irradiancia(FDCAN_HandleTypeDef *hfdcan, UART_HandleTypeDef *
  8002742:	46bd      	mov	sp, r7
  8002744:	bd80      	pop	{r7, pc}
  8002746:	bf00      	nop
- 8002748:	2000060b 	.word	0x2000060b
- 800274c:	200005e4 	.word	0x200005e4
+ 8002748:	20000607 	.word	0x20000607
+ 800274c:	200005e0 	.word	0x200005e0
 
 08002750 <VIPV_CAN_Pedir_Velocidad>:
 
@@ -5202,13 +5193,13 @@ void VIPV_CAN_Pedir_Velocidad(FDCAN_HandleTypeDef *hfdcan) {
  800275c:	2300      	movs	r3, #0
  800275e:	60fb      	str	r3, [r7, #12]
 
-    // Cambiamos temporalmente el ID de la cabecera al de peticiones de diagnóstico
+    // Se cambia temporalmente el ID de la cabecera al de peticiones de diagnóstico
     TxHeader.Identifier = 0x7DF;
  8002760:	4b08      	ldr	r3, [pc, #32]	@ (8002784 <VIPV_CAN_Pedir_Velocidad+0x34>)
  8002762:	f240 72df 	movw	r2, #2015	@ 0x7df
  8002766:	601a      	str	r2, [r3, #0]
 
-    // Lanzar la pregunta al bus CAN (y por tanto, al coche)
+    // Se lanza la pregunta al bus CAN (y por tanto, al coche)
     HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData_Req);
  8002768:	f107 0308 	add.w	r3, r7, #8
  800276c:	461a      	mov	r2, r3
@@ -5222,7 +5213,7 @@ void VIPV_CAN_Pedir_Velocidad(FDCAN_HandleTypeDef *hfdcan) {
  800277c:	bd80      	pop	{r7, pc}
  800277e:	bf00      	nop
  8002780:	000d0102 	.word	0x000d0102
- 8002784:	200005e4 	.word	0x200005e4
+ 8002784:	200005e0 	.word	0x200005e0
 
 08002788 <VIPV_CAN_Pedir_RPM>:
 
@@ -5240,13 +5231,13 @@ void VIPV_CAN_Pedir_RPM(FDCAN_HandleTypeDef *hfdcan) {
  8002794:	2300      	movs	r3, #0
  8002796:	60fb      	str	r3, [r7, #12]
 
-    // Cambiamos temporalmente el ID de la cabecera al de peticiones de diagnóstico
+    // Se cambia temporalmente el ID de la cabecera al de peticiones de diagnóstico
     TxHeader.Identifier = 0x7DF;
  8002798:	4b08      	ldr	r3, [pc, #32]	@ (80027bc <VIPV_CAN_Pedir_RPM+0x34>)
  800279a:	f240 72df 	movw	r2, #2015	@ 0x7df
  800279e:	601a      	str	r2, [r3, #0]
 
-    // Lanzar la pregunta al bus CAN
+    // Se lanza la pregunta al bus CAN
     HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &TxHeader, TxData_Req);
  80027a0:	f107 0308 	add.w	r3, r7, #8
  80027a4:	461a      	mov	r2, r3
@@ -5260,14 +5251,14 @@ void VIPV_CAN_Pedir_RPM(FDCAN_HandleTypeDef *hfdcan) {
  80027b4:	bd80      	pop	{r7, pc}
  80027b6:	bf00      	nop
  80027b8:	000c0102 	.word	0x000c0102
- 80027bc:	200005e4 	.word	0x200005e4
+ 80027bc:	200005e0 	.word	0x200005e0
 
 080027c0 <obtener_potencia_directa>:
+
 
 // ----------------- EQUIVALENCIA A LIBRERÍA numpy DE PYTHON --------------------
 
 // 1. Función para calcular la potencia directa (Interpolación Lineal)
-
 float obtener_potencia_directa(float v_actual, const float *array_v, float *array_p, int tamano) {
  80027c0:	b480      	push	{r7}
  80027c2:	b089      	sub	sp, #36	@ 0x24
@@ -5539,7 +5530,7 @@ float obtener_potencia_dinamica(float v_bus, float irradiancia) {
  80029ec:	f7ff fee8 	bl	80027c0 <obtener_potencia_directa>
  80029f0:	ed87 0a04 	vstr	s0, [r7, #16]
 
-        // REGLA DE 3: Se aplicar ratio de irradiancias
+        // REGLA DE 3: Se aplica ratio de irradiancias
         float ratio = irradiancia / irr_eq_sol;
  80029f4:	4b1c      	ldr	r3, [pc, #112]	@ (8002a68 <obtener_potencia_dinamica+0xac>)
  80029f6:	ed93 7a00 	vldr	s14, [r3]
@@ -5563,7 +5554,7 @@ float obtener_potencia_dinamica(float v_bus, float irradiancia) {
  8002a22:	f7ff fecd 	bl	80027c0 <obtener_potencia_directa>
  8002a26:	ed87 0a06 	vstr	s0, [r7, #24]
 
-        // REGLA DE 3: Se aplicar ratio de irradiancias
+        // REGLA DE 3: Se aplica ratio de irradiancias
         float ratio = irradiancia / irr_eq_sombra;
  8002a2a:	4b11      	ldr	r3, [pc, #68]	@ (8002a70 <obtener_potencia_dinamica+0xb4>)
  8002a2c:	ed93 7a00 	vldr	s14, [r3]
@@ -5586,16 +5577,16 @@ float obtener_potencia_dinamica(float v_bus, float irradiancia) {
  8002a58:	46bd      	mov	sp, r7
  8002a5a:	bd80      	pop	{r7, pc}
  8002a5c:	43160000 	.word	0x43160000
- 8002a60:	20000434 	.word	0x20000434
+ 8002a60:	20000428 	.word	0x20000428
  8002a64:	0800d484 	.word	0x0800d484
- 8002a68:	200005c4 	.word	0x200005c4
- 8002a6c:	200004fc 	.word	0x200004fc
- 8002a70:	200005c8 	.word	0x200005c8
+ 8002a68:	200005b8 	.word	0x200005b8
+ 8002a6c:	200004f0 	.word	0x200004f0
+ 8002a70:	200005bc 	.word	0x200005bc
 
 08002a74 <ejecutar_mppt_adaptativo>:
 static int contador_cambios = 0;
 static int timer_congelacion = 0;
-static float voltaje_congelado = 23.0f; //valor inicial
+static float voltaje_congelado = 0.0f;
 
 
 MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_anterior, float p_anterior, float paso_v, float p_actual) {
@@ -5609,7 +5600,7 @@ MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_
  8002a88:	edc7 1a01 	vstr	s3, [r7, #4]
  8002a8c:	ed87 2a00 	vstr	s4, [r7]
 
-	// STATE 1: EL SISTEMA YA ESTÁ CONGELADO
+	    // STATE 1: EL SISTEMA YA ESTÁ CONGELADO
 	    if (timer_congelacion > 0) {
  8002a90:	4b33      	ldr	r3, [pc, #204]	@ (8002b60 <ejecutar_mppt_adaptativo+0xec>)
  8002a92:	681b      	ldr	r3, [r3, #0]
@@ -5749,10 +5740,10 @@ MPPT_Modo_t ejecutar_mppt_adaptativo(float *v_actual, float irr_actual, float v_
  8002b58:	f85d 7b04 	ldr.w	r7, [sp], #4
  8002b5c:	4770      	bx	lr
  8002b5e:	bf00      	nop
- 8002b60:	20000614 	.word	0x20000614
- 8002b64:	20000010 	.word	0x20000010
- 8002b68:	20000610 	.word	0x20000610
- 8002b6c:	2000060c 	.word	0x2000060c
+ 8002b60:	20000610 	.word	0x20000610
+ 8002b64:	20000614 	.word	0x20000614
+ 8002b68:	2000060c 	.word	0x2000060c
+ 8002b6c:	20000608 	.word	0x20000608
  8002b70:	43160000 	.word	0x43160000
  8002b74:	20000618 	.word	0x20000618
 
@@ -5974,11 +5965,11 @@ LoopForever:
   ldr r0, =_sdata
  8002c9c:	20000000 	.word	0x20000000
   ldr r1, =_edata
- 8002ca0:	200001e4 	.word	0x200001e4
+ 8002ca0:	200001d8 	.word	0x200001d8
   ldr r2, =_sidata
  8002ca4:	0800dab4 	.word	0x0800dab4
   ldr r2, =_sbss
- 8002ca8:	200001e4 	.word	0x200001e4
+ 8002ca8:	200001d8 	.word	0x200001d8
   ldr r4, =_ebss
  8002cac:	2000076c 	.word	0x2000076c
 
@@ -6128,9 +6119,9 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
  8002d46:	3710      	adds	r7, #16
  8002d48:	46bd      	mov	sp, r7
  8002d4a:	bd80      	pop	{r7, pc}
- 8002d4c:	20000018 	.word	0x20000018
- 8002d50:	2000000c 	.word	0x2000000c
- 8002d54:	20000014 	.word	0x20000014
+ 8002d4c:	2000000c 	.word	0x2000000c
+ 8002d50:	20000004 	.word	0x20000004
+ 8002d54:	20000008 	.word	0x20000008
 
 08002d58 <HAL_IncTick>:
   * @note This function is declared as __weak to be overwritten in case of other
@@ -6155,7 +6146,7 @@ __weak void HAL_IncTick(void)
  8002d6e:	f85d 7b04 	ldr.w	r7, [sp], #4
  8002d72:	4770      	bx	lr
  8002d74:	2000061c 	.word	0x2000061c
- 8002d78:	20000018 	.word	0x20000018
+ 8002d78:	2000000c 	.word	0x2000000c
 
 08002d7c <HAL_GetTick>:
   * @note This function is declared as __weak to be overwritten in case of other
@@ -7653,7 +7644,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef *hadc)
  800359e:	46bd      	mov	sp, r7
  80035a0:	bd90      	pop	{r4, r7, pc}
  80035a2:	bf00      	nop
- 80035a4:	2000000c 	.word	0x2000000c
+ 80035a4:	20000004 	.word	0x20000004
  80035a8:	053e2d63 	.word	0x053e2d63
  80035ac:	50000100 	.word	0x50000100
  80035b0:	50000300 	.word	0x50000300
@@ -10139,7 +10130,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef *hadc, const ADC_Chann
  80044c4:	50000300 	.word	0x50000300
  80044c8:	c3210000 	.word	0xc3210000
  80044cc:	90c00010 	.word	0x90c00010
- 80044d0:	2000000c 	.word	0x2000000c
+ 80044d0:	20000004 	.word	0x20000004
  80044d4:	053e2d63 	.word	0x053e2d63
  80044d8:	c7520000 	.word	0xc7520000
  80044dc:	50000100 	.word	0x50000100
@@ -10632,7 +10623,7 @@ HAL_StatusTypeDef ADC_Enable(ADC_HandleTypeDef *hadc)
  8004756:	bf00      	nop
  8004758:	8000003f 	.word	0x8000003f
  800475c:	50000300 	.word	0x50000300
- 8004760:	2000000c 	.word	0x2000000c
+ 8004760:	20000004 	.word	0x20000004
  8004764:	053e2d63 	.word	0x053e2d63
 
 08004768 <ADC_Disable>:
@@ -22861,7 +22852,7 @@ HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling)
  80089d6:	f85d 7b04 	ldr.w	r7, [sp], #4
  80089da:	4770      	bx	lr
  80089dc:	40007000 	.word	0x40007000
- 80089e0:	2000000c 	.word	0x2000000c
+ 80089e0:	20000004 	.word	0x20000004
  80089e4:	431bde83 	.word	0x431bde83
 
 080089e8 <HAL_PWREx_DisableUCPDDeadBattery>:
@@ -23345,7 +23336,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(const RCC_OscInitTypeDef  *RCC_OscInitStruct
  8008c80:	e1ca      	b.n	8009018 <HAL_RCC_OscConfig+0x610>
  8008c82:	bf00      	nop
  8008c84:	40021000 	.word	0x40021000
- 8008c88:	20000014 	.word	0x20000014
+ 8008c88:	20000008 	.word	0x20000008
       while(READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) != 0U)
  8008c8c:	4b8c      	ldr	r3, [pc, #560]	@ (8008ec0 <HAL_RCC_OscConfig+0x4b8>)
  8008c8e:	f8d3 3094 	ldr.w	r3, [r3, #148]	@ 0x94
@@ -24398,8 +24389,8 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(const RCC_ClkInitTypeDef  *RCC_ClkInitStru
  8009290:	40021000 	.word	0x40021000
  8009294:	04c4b400 	.word	0x04c4b400
  8009298:	0800d6dc 	.word	0x0800d6dc
- 800929c:	2000000c 	.word	0x2000000c
- 80092a0:	20000014 	.word	0x20000014
+ 800929c:	20000004 	.word	0x20000004
+ 80092a0:	20000008 	.word	0x20000008
 
 080092a4 <HAL_RCC_GetSysClockFreq>:
   *
@@ -24551,7 +24542,7 @@ uint32_t HAL_RCC_GetHCLKFreq(void)
  8009374:	f85d 7b04 	ldr.w	r7, [sp], #4
  8009378:	4770      	bx	lr
  800937a:	bf00      	nop
- 800937c:	2000000c 	.word	0x2000000c
+ 800937c:	20000004 	.word	0x20000004
 
 08009380 <HAL_RCC_GetPCLK1Freq>:
   * @note   Each time PCLK1 changes, this function must be called to update the
@@ -28548,9 +28539,9 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800af10:	4803      	ldr	r0, [pc, #12]	@ (800af20 <stdio_exit_handler+0x14>)
  800af12:	f000 b869 	b.w	800afe8 <_fwalk_sglue>
  800af16:	bf00      	nop
- 800af18:	2000001c 	.word	0x2000001c
+ 800af18:	20000010 	.word	0x20000010
  800af1c:	0800cb4d 	.word	0x0800cb4d
- 800af20:	2000002c 	.word	0x2000002c
+ 800af20:	20000020 	.word	0x20000020
 
 0800af24 <cleanup_stdio>:
  800af24:	6841      	ldr	r1, [r0, #4]
@@ -28688,7 +28679,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800b05a:	b003      	add	sp, #12
  800b05c:	4770      	bx	lr
  800b05e:	bf00      	nop
- 800b060:	20000028 	.word	0x20000028
+ 800b060:	2000001c 	.word	0x2000001c
  800b064:	ffff0208 	.word	0xffff0208
 
 0800b068 <__sread>:
@@ -28763,7 +28754,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
 0800b100 <_localeconv_r>:
  800b100:	4800      	ldr	r0, [pc, #0]	@ (800b104 <_localeconv_r+0x4>)
  800b102:	4770      	bx	lr
- 800b104:	20000168 	.word	0x20000168
+ 800b104:	2000015c 	.word	0x2000015c
 
 0800b108 <_close_r>:
  800b108:	b538      	push	{r3, r4, r5, lr}
@@ -28840,7 +28831,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800b196:	6818      	ldr	r0, [r3, #0]
  800b198:	4770      	bx	lr
  800b19a:	bf00      	nop
- 800b19c:	20000028 	.word	0x20000028
+ 800b19c:	2000001c 	.word	0x2000001c
 
 0800b1a0 <__libc_init_array>:
  800b1a0:	b570      	push	{r4, r5, r6, lr}
@@ -30213,7 +30204,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800bf38:	6818      	ldr	r0, [r3, #0]
  800bf3a:	f000 b825 	b.w	800bf88 <_malloc_r>
  800bf3e:	bf00      	nop
- 800bf40:	20000028 	.word	0x20000028
+ 800bf40:	2000001c 	.word	0x2000001c
 
 0800bf44 <sbrk_aligned>:
  800bf44:	b570      	push	{r4, r5, r6, lr}
@@ -31580,7 +31571,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800cc32:	461c      	mov	r4, r3
  800cc34:	e7f3      	b.n	800cc1e <__assert_func+0x12>
  800cc36:	bf00      	nop
- 800cc38:	20000028 	.word	0x20000028
+ 800cc38:	2000001c 	.word	0x2000001c
  800cc3c:	0800d861 	.word	0x0800d861
  800cc40:	0800d86e 	.word	0x0800d86e
  800cc44:	0800d89c 	.word	0x0800d89c
@@ -31690,7 +31681,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800cd24:	f85d eb04 	ldr.w	lr, [sp], #4
  800cd28:	b003      	add	sp, #12
  800cd2a:	4770      	bx	lr
- 800cd2c:	20000028 	.word	0x20000028
+ 800cd2c:	2000001c 	.word	0x2000001c
 
 0800cd30 <abort>:
  800cd30:	b508      	push	{r3, lr}
@@ -32107,7 +32098,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800d0ee:	e7f4      	b.n	800d0da <__swsetup_r+0x8e>
  800d0f0:	2000      	movs	r0, #0
  800d0f2:	e7f7      	b.n	800d0e4 <__swsetup_r+0x98>
- 800d0f4:	20000028 	.word	0x20000028
+ 800d0f4:	2000001c 	.word	0x2000001c
 
 0800d0f8 <_raise_r>:
  800d0f8:	291f      	cmp	r1, #31
@@ -32151,7 +32142,7 @@ static void UARTEx_SetNbDataToProcess(UART_HandleTypeDef *huart)
  800d14c:	6818      	ldr	r0, [r3, #0]
  800d14e:	f7ff bfd3 	b.w	800d0f8 <_raise_r>
  800d152:	bf00      	nop
- 800d154:	20000028 	.word	0x20000028
+ 800d154:	2000001c 	.word	0x2000001c
 
 0800d158 <_kill_r>:
  800d158:	b538      	push	{r3, r4, r5, lr}
